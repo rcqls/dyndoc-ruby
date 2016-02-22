@@ -5,7 +5,8 @@ pkg_name='dyndoc-ruby'
 pkg_version='0.2.0'
 
 pkg_files=FileList[
-    'bin/*'
+    'bin/*',
+    'share/**/*'
 ]
 
 spec = Gem::Specification.new do |s|
