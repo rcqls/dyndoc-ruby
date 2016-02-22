@@ -1,7 +1,11 @@
-# dyndoc core
+# dyndoc ruby
 
 TODO: DESCRIPTION
 
-## Install
+## Requirements
 
-TODO
+* R, Rtools (Windows only) and devtools
+* ruby (Windows only: rubyinstaller and devkit)
+
+## Install
+* `gem install dyndoc-ruby`

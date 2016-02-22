@@ -21,6 +21,7 @@ spec = Gem::Specification.new do |s|
     s.add_dependency("dyndoc-ruby-exec",">=0.1.0")
     s.require_path = 'lib'
     s.bindir = 'bin'
+    s.executables << 'dyn.rb' << 'dyn-cli.rb' << 'dyn-srv.rb' << 'dpm.rb' 
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.
