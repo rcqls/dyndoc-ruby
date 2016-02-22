@@ -1,0 +1,7 @@
+[#=]beamerCfg.theme[Boadilla]
+[#=]beamerCfg.colorTheme[wolverine]
+[#=]beamerCfg.fontTheme[structureitalicserif]
+[#require]RCqls/Beamer
+[#preamble]
+\newcommand{\RS}{{\texttt{R}~}}
+\beamertemplateshadingbackground{purple!30}{yellow!40}

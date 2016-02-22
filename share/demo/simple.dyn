@@ -1,0 +1,10 @@
+toto3
+[#md>]## tutu
+[#ttm>]$$\int\pi=#r{pi}$$
+[#R>>]rnorm(10)
+
+[#>]format output: {#format_output#}
+
+{#img]plot(rnorm(10))[#}
+
+[#=]toto[tutu]
