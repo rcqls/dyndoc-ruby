@@ -40,8 +40,11 @@ target = ARGV[2] || package
 target = File.join(lib_dir,target)
 FileUtils.rm target if File.symlink? target #unlink first
 source = local ? path : File.join(repo_dir,path,package)
-FileUtils.ln_sf source,target
-
+if RUBY_PLATFORM =~ /(?:msys|mingw)/
+	FileUtils.cp_r source,target
+else
+	FileUtils.ln_sf source,target
+end
 # dyndoc-package unlink RCqls
 when :unlink
 package = ARGV[1]
