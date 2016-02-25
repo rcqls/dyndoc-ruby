@@ -18,7 +18,7 @@ TODO: DESCRIPTION
 
 * `gem install dyndoc-ruby`
 
-## config
+## Config
 
 * open terminal (ConEmu)
 * `dyn-init`
