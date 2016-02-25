@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.4.0'
+pkg_version='0.4.1'
 
 pkg_files=FileList[
     'bin/*',
@@ -16,9 +16,9 @@ spec = Gem::Specification.new do |s|
     s.version = pkg_version
     s.licenses = ['MIT', 'GPL-2']
     s.requirements << 'none'
-    s.add_dependency("R4rb","~>0.1",">=0.1.0")
-    s.add_dependency("dyndoc-ruby-core","~>0.1",">=0.1.0")
-    s.add_dependency("dyndoc-ruby-doc","~>0.1",">=0.1.0")
+    s.add_dependency("R4rb","~>1.0",">=1.0.0")
+    s.add_dependency("dyndoc-ruby-core","~>1.0",">=1.0.0")
+    s.add_dependency("dyndoc-ruby-doc","~>1.0",">=1.0.0")
     s.add_dependency("dyndoc-ruby-exec","~>0.1",">=0.1.0")
     s.require_path = 'lib'
     s.bindir = 'bin'
