@@ -17,3 +17,14 @@ TODO: DESCRIPTION
 ## Install
 
 * `gem install dyndoc-ruby`
+
+## config
+
+* open terminal (ConEmu)
+* `dyn-init`
+* edit `~/dyndoc/etc/dyndoc_library_path`
+
+## Atom editor
+
+* install it first!
+* install packages `dyndoc` and `atom-language-dyndoc`
