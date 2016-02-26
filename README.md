@@ -72,9 +72,8 @@ R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ### for Windows user
 
 * [ConEmu](https://conemu.github.io) (optional but I love it as a non Windows user)
-* [R](http://cran.r-project.org/bin/windows/base/)
-  * [Rtools](https://cran.r-project.org/bin/windows/Rtools/), [RStudio](https://www.rstudio.com/products/rstudio/download/) (pandoc is embedded)
-* ruby: [rubyinstaller](http://rubyinstaller.org) and [devkit](http://rubyinstaller.org/add-ons/devkit)
+* [R](http://cran.r-project.org/bin/windows/base/),  [Rtools](https://cran.r-project.org/bin/windows/Rtools/) and  [RStudio](https://www.rstudio.com/products/rstudio/download/) (pandoc is embedded)
+* ruby: [rubyinstaller](http://rubyinstaller.org) and [devkit](http://rubyinstaller.org/add-ons/devkit) (Advice: put them in the same directory `C:\tools` and follow the instructions for devkit: `ruby dk.rb init` and then `ruby dk.rb install`)
 * [git](https://git-for-windows.github.io) (for Windows: useable in cmd)
 * Add pandoc, R, ruby to the environment variable PATH
 * Open `cmd` terminal (ConEmu) and then:
