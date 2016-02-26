@@ -31,5 +31,13 @@ TODO: DESCRIPTION
 
 ## Ubuntu users
 
-* R install: http://sites.psu.edu/theubunturblog/installing-r-in-ubuntu/
-* ruby install: https://www.brightbox.com/docs/ruby/ubuntu/
+* R install (see http://sites.psu.edu/theubunturblog/installing-r-in-ubuntu/ for more details)
+  * `sudo add-apt-repository ppa:marutter/rrutter`
+  * `sudo apt-get update`
+  * `sudo apt-get install r-base r-base-dev`
+* ruby install (see https://www.brightbox.com/docs/ruby/ubuntu/ for more details)
+  * `sudo apt-get install software-properties-common`
+  * `sudo apt-add-repository ppa:brightbox/ruby-ng`
+  * `sudo apt-get update`
+  * `sudo apt-get install ruby2.2 ruby2.2-dev ruby-switch`
+  * `ruby-switch --list`
