@@ -27,4 +27,9 @@ TODO: DESCRIPTION
 ## Atom editor
 
 * install it first!
-* install packages `dyndoc` and `atom-language-dyndoc`
+* install packages `(atom-)dyndoc` and `(atom-)language-dyndoc`
+
+## Ubuntu users
+
+* R install: http://sites.psu.edu/theubunturblog/installing-r-in-ubuntu/
+* ruby install: https://www.brightbox.com/docs/ruby/ubuntu/
