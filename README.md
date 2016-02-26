@@ -83,6 +83,7 @@ R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
+Rmk: With `git` installed, `ConEmu` detects Git bash automaticaaly that can be used instead of `cmd` 
 * latex (with pdflatex in PATH) : [MikTex](http:/miktex.org)
 * optionnally:
   * [Ttm](http://hutchinson.belmont.ma.us/tth/mml)
@@ -99,3 +100,12 @@ R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 
 * install it first (go to https://atom.io)
 * install packages `(atom-)dyndoc` and `(atom-)language-dyndoc` via settings inside atom
+* dyndoc server: open console and type
+```{bash}
+dpm install rcqls/DyndocWebTools.dyn  # install DyndocWebTools.dyn (git is required)
+dpm link rcqls/DyndocWebTools.dyn     # to be required in dyndoc
+dyn-srv                               # launch the dyndoc server
+```
+* open atom and select ~/dyndoc/demo folder, open first.dyn
+* to open dyndoc viewer: `[Ctrl+Alt+x] [t]` (Windows and Linux) or `[Cmd+Alt+x] [t]` (MacOSX)
+* to execute dyndoc code: `[Ctrl+Alt+d]` (Windows and Linux) or `[Cmd+Alt+x] [d]` (MacOSX)
