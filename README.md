@@ -75,7 +75,7 @@ R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 * [R](http://cran.r-project.org/bin/windows/base/),  [Rtools](https://cran.r-project.org/bin/windows/Rtools/) and  [RStudio](https://www.rstudio.com/products/rstudio/download/) (pandoc is embedded)
 * ruby: [rubyinstaller](http://rubyinstaller.org) and [devkit](http://rubyinstaller.org/add-ons/devkit) (Advice: put them in the same directory `C:\tools` and follow the instructions for devkit: `ruby dk.rb init` and then `ruby dk.rb install`)
 * [git](https://git-for-windows.github.io) (for Windows: useable in cmd)
-* Add pandoc, R, ruby to the environment variable PATH
+* Check that `pandoc`, `R`, `ruby`, `git` are executable in `cmd` terminal by setting properly  the environment variable PATH
 * Open `cmd` terminal (ConEmu) and then:
 ```{bash}
 gem install dyndoc-ruby --no-ri --no-rdoc
