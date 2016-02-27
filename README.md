@@ -36,34 +36,34 @@ Note that generally linux user from other distributions knows how to adapt the f
 # R install
 sudo add-apt-repository ppa:marutter/rrutter
 sudo apt-get update
-sudo apt-get install r-base r-base-dev
+sudo apt-get install -y r-base r-base-dev
 
 # ruby install
-sudo apt-get install software-properties-common
+sudo apt-get -y install software-properties-common
 sudo apt-add-repository ppa:brightbox/ruby-ng
 sudo apt-get update
-sudo apt-get install ruby2.2 ruby2.2-dev ruby-switch
+sudo apt-get install -y ruby2.2 ruby2.2-dev ruby-switch
 ruby-switch --list
 
 # git install
-sudo apt-get install git
+sudo apt-get install -y git
 
 # ruby gems: dyndoc
-gem install dyndoc-ruby --no-ri --no-rdoc
+sudo gem install -y dyndoc-ruby --no-ri --no-rdoc
 
 # R package devtools
 sudo apt-get install -y libxml2-dev  libcurl4-openssl-dev libssl-dev
 R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 
 # R package rb4R
-sudo apt-get install libgmp-dev
-R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
+sudo R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
+# if something goes wrong in the previous instruction redo after: sudo apt-get install libgmp-dev
 
 # R package base64
-R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
+sudo R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
 * pdflatex
-  * `sudo apt-get install texlive-full`
+  * `sudo apt-get install -y texlive-full`
 * [pandoc](http://pandoc.org/installing.html)
 * optionnally:
   * `gem install asciidoctor --no-ri --no-rdoc`
@@ -83,7 +83,7 @@ R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
-Rmk: With `git` installed, `ConEmu` detects Git bash automaticaaly that can be used instead of `cmd` 
+Rmk: With `git` installed, `ConEmu` detects Git bash automaticaaly that can be used instead of `cmd`
 * latex (with pdflatex in PATH) : [MikTex](http:/miktex.org)
 * optionnally:
   * [Ttm](http://hutchinson.belmont.ma.us/tth/mml)
