@@ -66,7 +66,7 @@ sudo R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
   * `sudo apt-get install -y texlive-full`
 * [pandoc](http://pandoc.org/installing.html)
 * optional but nice-to-have:
-  * `gem install asciidoctor --no-ri --no-rdoc`
+  * `sudo gem install asciidoctor --no-ri --no-rdoc`
   * [Ttm](http://hutchinson.belmont.ma.us/tth/mml) from source
 
 ### for Windows user
