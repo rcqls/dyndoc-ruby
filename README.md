@@ -34,14 +34,14 @@ Note that generally linux user from other distributions knows how to adapt the f
 * [R](http://sites.psu.edu/theubunturblog/installing-r-in-ubuntu/),  [ruby](https://www.brightbox.com/docs/ruby/ubuntu/), git and dyndoc install
 ```{bash}
 # R install
-sudo add-apt-repository ppa:marutter/rrutter
-sudo apt-get update
+sudo add-apt-repository -y ppa:marutter/rrutter
+sudo apt-get update -y
 sudo apt-get install -y r-base r-base-dev
 
 # ruby install
 sudo apt-get -y install software-properties-common
 sudo apt-add-repository ppa:brightbox/ruby-ng
-sudo apt-get update
+sudo apt-get update -y
 sudo apt-get install -y ruby2.2 ruby2.2-dev ruby-switch
 ruby-switch --list
 
@@ -49,7 +49,7 @@ ruby-switch --list
 sudo apt-get install -y git
 
 # ruby gems: dyndoc
-sudo gem install -y dyndoc-ruby --no-ri --no-rdoc
+sudo gem install dyndoc-ruby --no-ri --no-rdoc
 
 # R package devtools
 sudo apt-get install -y libxml2-dev  libcurl4-openssl-dev libssl-dev
