@@ -39,8 +39,8 @@ sudo apt-get update -y
 sudo apt-get install -y r-base r-base-dev
 
 # ruby install
-sudo apt-get -y install software-properties-common
-sudo apt-add-repository ppa:brightbox/ruby-ng
+sudo apt-get install -y software-properties-common
+sudo apt-add-repository -y ppa:brightbox/ruby-ng
 sudo apt-get update -y
 sudo apt-get install -y ruby2.2 ruby2.2-dev ruby-switch
 ruby-switch --list
