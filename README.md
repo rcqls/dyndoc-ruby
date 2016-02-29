@@ -9,7 +9,9 @@ Dyndoc relies mainly in `ruby` and `R`. As a document maker, it is better to als
 ### for MacOSX user
 
 * requirements
-  * `ruby`: xcode provides one and homebrew is based on ruby.
+  * `ruby`: [Xcode](https://developer.apple.com/downloads/) provides one and [homebrew](http://brew.sh) is based on ruby.
+  * Command-line tools for Xcode (to access ruby): inside Terminal, `xcode-select --install`
+  (details is proposed in the [homebrew github](https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Installation.md#installation) website).
   * [homebrew](http://brew.sh) (optional but I love it as a linux user)
   * [R](http://cran.r-project.org/bin/macosx/)
   * [latex (MacTex)](http://www.tug.org/mactex/)
@@ -83,7 +85,7 @@ R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
-Rmk: With `git` installed, `ConEmu` detects Git bash automaticaaly that can be used instead of `cmd`
+Rmk: With `git` installed, `ConEmu` detects Git bash automatically that can be used instead of `cmd`
 * latex (with pdflatex in PATH) : [MikTex](http:/miktex.org)
 * optional but nice-to-have:
   * [Ttm](http://hutchinson.belmont.ma.us/tth/mml)
@@ -116,3 +118,9 @@ dyn-srv                               # launch the dyndoc server
 * open atom and select ~/dyndoc/demo folder, open first.dyn
 * to open dyndoc viewer: `[Ctrl+Alt+x] [t]` (Windows and Linux) or `[Cmd+Alt+x] [t]` (MacOSX)
 * to execute dyndoc code: `[Ctrl+Alt+d]` (Windows and Linux) or `[Cmd+Alt+x] [d]` (MacOSX)
+
+## Dyndoc server started as a daemon
+
+* on MacOSX, `launchctl` and `gem install lunchy`. Commercial alternative is `LaunchControl` (`brew cask install launchcontrol`)
+* on Windows, `task scheduler` and `bat_to_exe converter`
+* on linux, `upstart` ...

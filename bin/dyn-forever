@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+
+require 'forever'
+require "dyndoc/srv/interactive-server"
+
+Forever.run do
+  on_error do |e|
+
+      puts  "%s\n  %s\n" % [e.message, e.backtrace.join("\n  ")]
+
+  end
+  before :all do
+    Dyndoc::InteractiveServer.new.run
+  end
+
+end

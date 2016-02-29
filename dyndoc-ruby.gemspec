@@ -2,10 +2,11 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.5.1'
+pkg_version='0.5.2'
 
 pkg_files=FileList[
     'bin/*',
+    'lib/dyndoc/**/*.rb',
     'share/**/*'
 ]
 
@@ -22,7 +23,7 @@ spec = Gem::Specification.new do |s|
     s.add_dependency("dyndoc-ruby-exec","~>0.1",">=0.1.0")
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-init'
+    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << "dyn-forever" << 'dpm' << 'dyn-init'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.
