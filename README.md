@@ -74,34 +74,57 @@ sudo R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 
 ### for Windows user
 
+Installation is proposed with basic installers and also with [scoop](http://scoop.sh) which allow us to install the equired tools in command-line mode.
+
+## Common pre-installations
+
 * [ConEmu](https://conemu.github.io) (optional but almost required)
+  Rmk: `conemu`can be installed also via `scoop` but in such case it is not in the Windows menu.
 * [R](http://cran.r-project.org/bin/windows/base/),  [Rtools](https://cran.r-project.org/bin/windows/Rtools/) and  [RStudio](https://www.rstudio.com/products/rstudio/download/) (pandoc is embedded)
+* add R and pandoc to the PATH.
+
+
+#### Installation with [scoop](http://scoop.sh) (my preferred choice)
+
+`scoop` requires powershell version >= 3 installed.
+
+* open `powershell` and go the [scoop](http://scoop.sh) website to see how to install it.
+* `scoop install git`
+* `scoop install ruby` (ruby and devkit automatically installed)
+* `scoop install latex`
+* [scoop-extras](https://github.com/lukesampson/scoop-extras) (not required but allow to install Application like Atom): `scoop bucket add extras`
+
+#### Basic with Windows installers
+
 * ruby: [rubyinstaller](http://rubyinstaller.org) and [devkit](http://rubyinstaller.org/add-ons/devkit) (Advice: put them in the same directory `C:\tools` and follow the instructions for devkit: `ruby dk.rb init` and then `ruby dk.rb install`)
 * [git](https://git-for-windows.github.io) (for Windows: useable in cmd)
-* Check that `pandoc`, `R`, `ruby`, `git` are executable in `cmd` terminal by setting properly  the environment variable PATH
-* Open `cmd` terminal (ConEmu) and then:
+* latex (with pdflatex in PATH) : [MikTex](http:/miktex.org)
+
+#### Common post-installations
+
+* Open `powershell` terminal (ConEmu is excellent) and then:
 ```{bash}
 gem install dyndoc-ruby --no-ri --no-rdoc
 R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
-Rmk: With `git` installed, `ConEmu` detects Git bash automatically that can be used instead of `cmd`
-* latex (with pdflatex in PATH) : [MikTex](http:/miktex.org)
+
 * optional but nice-to-have:
-  * [Ttm](http://hutchinson.belmont.ma.us/tth/mml)
   * `gem install asciidoctor --no-ri --no-rdoc`
-  * If RStudio not installed: [pandoc](https://github.com/jgm/pandoc/releases)
+  * If RStudio not installed: [pandoc](https://github.com/jgm/pandoc/releases) or `scoop install pandoc`
+  * [Ttm](http://hutchinson.belmont.ma.us/tth/mml)
+
 
 
 ## Dyndoc Config
 
 * open terminal (ConEmu for Windows user) and type: `dyn-init`
-* edit `~/dyndoc/etc/dyndoc_library_path`
+* edit `~/dyndoc/etc/dyndoc_library_path` (maybe later is better)
 
 ## Dyndoc inside Atom editor
 
-* install it first (go to https://atom.io)
+* install it first (go to https://atom.io) (for MacOSX user, `brew cask install atom` and, for Windows user `scoop install atom`)
 * install packages `(atom-)dyndoc` and `(atom-)language-dyndoc` via settings inside atom (via comamnd line: `apm install dyndoc language-dyndoc`)
 
 ## Dyndoc testing inside Atom editor
