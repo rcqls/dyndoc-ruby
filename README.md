@@ -76,7 +76,7 @@ sudo R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 
 Installation is proposed with basic installers and also with [scoop](http://scoop.sh) which allow us to install the equired tools in command-line mode.
 
-## Common pre-installations
+#### Common pre-installations
 
 * [ConEmu](https://conemu.github.io) (optional but almost required)
   Rmk: `conemu`can be installed also via `scoop` but in such case it is not in the Windows menu.
