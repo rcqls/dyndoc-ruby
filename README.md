@@ -13,10 +13,11 @@ Dyndoc relies mainly in `ruby` and `R`. As a document maker, it is better to als
   * Command-line tools for Xcode (to access ruby): inside Terminal, `xcode-select --install`
   (details is proposed in the [homebrew github](https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Installation.md#installation) website).
   * [homebrew](http://brew.sh) (optional but I love it as a linux user)
-  * [R](http://cran.r-project.org/bin/macosx/)
-  * [latex (MacTex)](http://www.tug.org/mactex/)
+  * [homebrew-cask](http://caskroom.io) optional but nice-to-have if you are in love with command-line to install applications: `brew tap caskroom/cask`
+  * [R](http://cran.r-project.org/bin/macosx/) or `brew cask install r`
+  * [latex (MacTex)](http://www.tug.org/mactex/) or `brew cask install mactex`
   * `git`: `brew install git`
-  * [pandoc](https://github.com/jgm/pandoc/releases)
+  * [pandoc](https://github.com/jgm/pandoc/releases) or `brew cask install pandoc`
   * optional but nice-to-have:
     * `gem install asciidoctor --no-ri --no-rdoc`
     * [Ttm](http://hutchinson.belmont.ma.us/tth/mml) from source
