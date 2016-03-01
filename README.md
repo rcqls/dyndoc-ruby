@@ -74,21 +74,24 @@ sudo R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 
 ### for Windows user
 
-Installation is proposed with basic installers and also with [scoop](http://scoop.sh) which allow us to install the equired tools in command-line mode.
+Installation is proposed with basic installers and also with [scoop](http://scoop.sh) which allow us to install the required tools in command-line mode.
 
 #### Common pre-installations
 
-* [ConEmu](https://conemu.github.io) (optional but almost required)
-  Rmk: `conemu`can be installed also via `scoop` but in such case it is not in the Windows menu.
+* [ConEmu](https://conemu.github.io) (optional but strongly required). Rmk: `conemu`can be installed also via `scoop` but in such a case it is not in the Windows menu.
 * [R](http://cran.r-project.org/bin/windows/base/),  [Rtools](https://cran.r-project.org/bin/windows/Rtools/) and  [RStudio](https://www.rstudio.com/products/rstudio/download/) (pandoc is embedded)
-* add R and pandoc to the PATH.
+* add R (`C:\Program Files\R\R-3.2.3\bin\i386` or `C:\Program Files\R\R-3.2.3\bin\x64`) and pandoc (`C:\Program Files\RStudio\bin\pandoc\bin`) to the PATH environment variable.
 
 
 #### Installation with [scoop](http://scoop.sh) (my preferred choice)
 
 `scoop` requires powershell version >= 3 installed.
 
-* open `powershell` and go the [scoop](http://scoop.sh) website to see how to install it.
+* open `powershell` and install [scoop](http://scoop.sh):
+````{bash}
+iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+set-executionpolicy unrestricted -s cu
+````
 * `scoop install git`
 * `scoop install ruby` (ruby and devkit automatically installed)
 * `scoop install latex`
