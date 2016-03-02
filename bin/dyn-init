@@ -1,9 +1,77 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 
-share_path=File.expand_path("../../share", __FILE__)
-dyndoc_path=File.join(ENV["HOME"],"dyndoc")
-unless File.exist? dyndoc_path
-	FileUtils.mkdir_p dyndoc_path
-	FileUtils.cp_r File.join(share_path,"."),dyndoc_path
+arg=ARGV[0]
+arg="path" if arg.empty?
+
+dyn_srv_plist=File.expand_path("~/Library/LaunchAgents/dyn-srv.plist") if RUBY_PLATFORM =~ /darwin/
+
+case arg
+when "help"
+	puts <<-DOC
+launchctl helpers to launch dyn-srv service.
+Usage: dyn-init path    => create ~/dyndoc folder
+dyn-init srv new|load   => create when not existing the dyn-srv service
+dyn-init srv unload     => unload existing service
+dyn-init srv start/stop => start/stop the dyn-srv service
+dyn-init srv [list]     => list dyn-srv service
+DOC
+when "path"
+	share_path=File.expand_path("../../share", __FILE__)
+	dyndoc_path=File.join(ENV["HOME"],"dyndoc")
+	unless File.exist? dyndoc_path
+		FileUtils.mkdir_p dyndoc_path
+		FileUtils.cp_r File.join(share_path,"."),dyndoc_path
+	else
+		puts "Warning: #{dyndoc_path} folder already exists!"
+	end
+when "srv" # MacOSX user only
+	if RUBY_PLATFORM =~ /darwin/
+		mode=ARGV[1]
+		mode="list" if !mode or mode.empty?
+		case mode
+		when "load","new"
+			unless File.exists? dyn_srv_plist
+				plist= <<-END.sub(/DYNSRV/,`which dyn-srv`.strip)
+				<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+				<plist version="1.0">
+				<dict>
+				<key>Label</key>
+				<string>dyn-srv</string>
+				<key>ProgramArguments</key>
+				<array>
+				<string>DYNSRV</string>
+				</array>
+				<key>RunAtLoad</key>
+				<true/>
+				<key>KeepAlive</key>
+				<dict>
+				<key>Crashed</key>
+				<true/>
+				</dict>
+				<key>StandardErrorPath</key>
+				<string>/tmp/dyn-srv.err</string>
+				<key>StandardOutPath</key>
+				<string>/tmp/dyn-srv.out</string>
+				</dict>
+				</plist>
+				END
+				File.open(dyn_srv_plist,"w") do |f|
+					f << plist
+				end
+			end
+			`launchctl load #{dyn_srv_plist}`
+		when "unload"
+			if File.exists? dyn_srv_plist
+				`launchctl unload #{dyn_srv_plist}`
+			else
+				puts "Service dyn-srv not available. Create it first: dyn-init srv new"
+			end
+		when "start", "stop"
+			`launchctl #{mode} dyn-srv`
+		when "list"
+			puts `launchctl list | grep dyn`
+		end
+	end
 end
