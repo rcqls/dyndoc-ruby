@@ -19,13 +19,13 @@ Dyndoc relies mainly in `ruby` and `R`. As a document maker, it is better to als
   * `git`: `brew install git`
   * [pandoc](https://github.com/jgm/pandoc/releases) or `brew cask install pandoc`
   * optional but nice-to-have:
-    * `gem install asciidoctor --no-ri --no-rdoc`
+    * `(sudo) gem install asciidoctor --no-ri --no-rdoc`
     * [Ttm](http://hutchinson.belmont.ma.us/tth/mml) from source
 * ruby gems
-  * `gem install dyndoc-ruby --no-ri --no-rdoc`
+  * `(sudo) gem install dyndoc-ruby --no-ri --no-rdoc`
 * R packages
 ```{bash}
-brew install libxml2
+brew install libxml2 gmp
 R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 ```
