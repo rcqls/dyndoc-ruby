@@ -148,6 +148,33 @@ dyn-srv                               # launch the dyndoc server
 
 ## Dyndoc server started as a daemon
 
-* on MacOSX, `launchctl` and `gem install lunchy`. Commercial alternative is `LaunchControl` (`brew cask install launchcontrol`)
+* on MacOSX, `launchctl`:  
+  * `dyn-init srv new` (create the service and load it automatically)
+  * `dyn-init srv start|stop` (start or stop the service)
+  * `dyn-init srv list` (list the status of the service)
+  * `dyn-init srv load|unload` (load or unload the service already created)
+  * Rmk: to manage launchctl see `gem install lunchy` or `LaunchControl` (`brew cask install launchcontrol` but it is commercial alternative)
 * on Windows, `task scheduler` and `bat_to_exe converter`
-* on linux, `upstart` ...
+* on linux, `upstart`
+
+## Dyndoc Package Manager
+
+* `dpm install <github repo>` where `<github repos>` is the name of a Github repo containing one or more dyndoc folder:
+```{bash}
+dpm install rcqls/dyndoc-library-demo
+```
+* `dpm link`
+
+```{bash}
+dpm link rcqls/dyndoc-library-demo/LibOne LibTest
+# or
+dpm link rcqls/dyndoc-library-demo/LibTwo LibTest
+```
+* Now depending of using first or second link, the following dyndoc file with content:
+```{bash}
+[#require]LibTest/tools
+[#main]
+{#hello]Moi[#}
+```
+would answer: `hello Moi` or `bonjour Moi`.
+* `dpm unlink`
