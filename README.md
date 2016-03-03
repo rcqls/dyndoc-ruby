@@ -123,7 +123,14 @@ R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ## Dyndoc Config
 
 * open terminal (ConEmu for Windows user) and type: `dyn-init`
-* edit `~/dyndoc/etc/dyndoc_library_path` (maybe later is better)
+* edit `~/dyndoc/etc/dyndoc_library_path` (maybe later is better since you don't have any personal library yet): this a semicolon separated list of paths supposed to contain dyndoc library.
+* dyndoc test: open a terminal and go to dyndoc folder (`HOME/dyndoc`)
+```{bash}
+cd demo
+dyn first
+pdflatex first
+```
+Normally, if everything is fine, `first.tex` and `first.pdf` are created.
 
 ## Dyndoc inside Atom editor
 
