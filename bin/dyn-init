@@ -2,7 +2,7 @@
 require 'fileutils'
 
 arg=ARGV[0]
-arg="path" if arg.empty?
+arg="path" if !arg or arg.empty?
 
 dyn_srv_plist=File.expand_path("~/Library/LaunchAgents/dyn-srv.plist") if RUBY_PLATFORM =~ /darwin/
 

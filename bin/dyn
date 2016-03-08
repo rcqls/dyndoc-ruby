@@ -14,6 +14,8 @@ args=ARGV.select{|name|
   end
 }
 
+args=["-h"] if args.empty?
+
 require 'optparse'
 
 OptionParser.new do |opts|
