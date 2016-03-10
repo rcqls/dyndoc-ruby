@@ -96,6 +96,19 @@ set-executionpolicy unrestricted -s cu
 * `scoop install ruby` (ruby and devkit automatically installed)
 * `scoop install latex`
 * [scoop-extras](https://github.com/lukesampson/scoop-extras) (not required but allow to install Application like Atom): `scoop bucket add extras`
+* Rmk: if `scoop install latex` fails, it is sometimes because the current version is obsolete in the scoop directory, then I have my own scoop-bucket (thanks scoop!):
+```{bash}
+scoop bucket add rcqls https://github.com/rcqls/scoop-bucket
+scoop install rcqls/miktex
+## pandoc
+scoop install rcqls/pandoc
+```
+* If you want to update `scoop` or applications installed by `scoop`:
+```{bash}
+scoop status
+scoop update
+## scoop update <application>
+```
 
 #### Basic with Windows installers
 
