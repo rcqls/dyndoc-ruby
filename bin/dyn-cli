@@ -95,7 +95,7 @@ dyn_output=ARGV[next_i + 1]
 
 
 
-if arg.include? "@"
+if arg and arg.include? "@"
 	arg,addr=arg.split("@")
 else
 	addr="127.0.0.1"
@@ -103,7 +103,7 @@ end
 
 dyn_file,dyn_layout,dyn_libs,dyn_pre_code,dyn_post_code=nil,nil,nil,nil,nil
 
-if arg.include? ","
+if arg and arg.include? ","
 	dyn_file,dyn_layout=arg.split(",")
 else
 	dyn_file=arg
@@ -116,7 +116,13 @@ if !dyn_layout and File.exist? ".dyn_layout"
 	dyn_layout=File.read(".dyn_layout").strip
 end
 
-if !dyn_layout and File.exist?(etc_dyn_layout=File.join(ENV["HOME"],".dyndocker","etc","dyn_cli_layout"))
+# Can be extended to other output?
+if !dyn_layout and dyn_file =~ /\_(?:html|tex)(_[a-z,A-Z,0-9,-]*)\.dyn$/ # I guess this cpuld be very useful!
+	dyn_layout=$1 #layout class (not a path!) defined 
+end
+
+# If you want a default layout put it inside ~/dyndoc/etc/dyn-cli/dyn_layout
+if !dyn_layout and File.exist?(etc_dyn_layout=File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","dyn_layout"))
 	dyn_layout=File.read(etc_dyn_layout).strip
 end
 
@@ -125,7 +131,7 @@ if !dyn_libs and File.exist? ".dynlibs"
 	dyn_libs=File.read(".dynlibs").strip
 end
 
-if !dyn_libs and File.exist?(etc_dyn_libs=File.join(ENV["HOME"],".dyndocker","etc","dyn-cli","dyn_libs"))
+if !dyn_libs and File.exist?(etc_dyn_libs=File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","dyn_libs"))
 	dyn_libs=File.read(etc_dyn_libs).strip
 end
 
@@ -140,7 +146,7 @@ if !dyn_pre_code and File.exist?(etc_dyn_pre_code=".dyn_pre_code")
 	dyn_pre_code=File.read(etc_dyn_pre_code) if File.exist? etc_dyn_pre_code
 end
 
-if !dyn_libs and File.exist?(etc_dyn_pre_code=File.join(ENV["HOME"],".dyndocker","etc","dyn-cli","dyn_pre_code"))
+if !dyn_libs and File.exist?(etc_dyn_pre_code=File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","dyn_pre_code"))
 	etc_dyn_pre_code=File.read(etc_dyn_pre_code).strip
 	dyn_pre_code=File.read(etc_dyn_pre_code) if File.exist? etc_dyn_pre_code
 end
@@ -157,14 +163,20 @@ if !dyn_post_code and File.exist?(etc_dyn_post_code=".dyn_post_code")
 	dyn_post_code=File.read(etc_dyn_post_code) if File.exist? etc_dyn_post_code
 end
 
-if !dyn_post_code and File.exist?(etc_dyn_post_code=File.join(ENV["HOME"],".dyndocker","etc","dyn-cli","dyn_post_code"))
+if !dyn_post_code and File.exist?(etc_dyn_post_code=File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","dyn_post_code"))
 	etc_dyn_post_code=File.read(etc_dyn_post_code).strip
 	dyn_post_code=File.read(etc_dyn_post_code) if File.exist? etc_dyn_post_code
 end
 
 
-dyn_file=nil unless File.exist? dyn_file
-dyn_layout=nil if dyn_layout and !File.exist? dyn_layout
+dyn_file=nil unless dyn_file and File.exist? dyn_file
+if dyn_layout and !File.exist? dyn_layout
+	dyn_layout_path = ""
+	dyn_layout_path << File.read(etc_dyn_cli_layout_path).strip if File.exist?(etc_dyn_cli_layout_path=File.join(ENV["HOME"],"dyndoc","etc","dyn_cli_layout_path"))
+	dyn_layout_path << (dyn_layout_path.empty? ? "" : ";") << File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","layout")
+	dyn_layouts=dyn_layout_path.split(";").map{|p| (tmp=File.join(p,dyn_layout)) ? tmp : nil }.compact
+	dyn_layout=dyn_layouts[0] #can be nil!
+end
 
 if dyn_file
 	code=File.read(dyn_file)

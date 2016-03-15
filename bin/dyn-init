@@ -72,6 +72,11 @@ when "srv" # MacOSX user only
 			`launchctl #{mode} dyn-srv`
 		when "list"
 			puts `launchctl list | grep dyn`
+		when "log"
+			puts "Error:"
+			puts File.read("/tmp/dyn-srv.err")
+			puts "Out:"
+			puts File.read("/tmp/dyn-srv.out")
 		end
 	end
 end
