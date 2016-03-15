@@ -118,7 +118,7 @@ end
 
 # Can be extended to other output?
 if !dyn_layout and dyn_file =~ /\_(?:html|tex)(_[a-z,A-Z,0-9,-]*)\.dyn$/ # I guess this cpuld be very useful!
-	dyn_layout=$1 #layout class (not a path!) defined 
+	dyn_layout=$1 #layout class (not a path!) defined
 end
 
 # If you want a default layout put it inside ~/dyndoc/etc/dyn-cli/dyn_layout
@@ -174,7 +174,7 @@ if dyn_layout and !File.exist? dyn_layout
 	dyn_layout_path = ""
 	dyn_layout_path << File.read(etc_dyn_cli_layout_path).strip if File.exist?(etc_dyn_cli_layout_path=File.join(ENV["HOME"],"dyndoc","etc","dyn_cli_layout_path"))
 	dyn_layout_path << (dyn_layout_path.empty? ? "" : ";") << File.join(ENV["HOME"],"dyndoc","etc","dyn-cli","layout")
-	dyn_layouts=dyn_layout_path.split(";").map{|p| (tmp=File.join(p,dyn_layout)) ? tmp : nil }.compact
+	dyn_layouts=dyn_layout_path.split(";").map{|p| (File.exists? (tmp=File.join(p,dyn_layout+".dyn"))) ? tmp : nil }.compact
 	dyn_layout=dyn_layouts[0] #can be nil!
 end
 
