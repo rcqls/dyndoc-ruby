@@ -147,7 +147,9 @@ Normally, if everything is fine, `first.tex` and `first.pdf` are created.
 
 ## Dyndoc inside Atom editor
 
-* install it first (go to https://atom.io) (for MacOSX user, `brew cask install atom` and, for Windows user `scoop install atom`)
+* Install [Atom](https://atom.io)
+  * for MacOSX user: `brew cask install atom` (Important: atom can be installed with a basic installer but this way allows us to set the environment variable PATH properly)
+  * for Windows user: `scoop install atom`
 * install packages `(atom-)dyndoc` and `(atom-)language-dyndoc` via settings inside atom (via comamnd line: `apm install dyndoc language-dyndoc`)
 
 ## Dyndoc testing inside Atom editor
@@ -168,13 +170,16 @@ dyn-srv                               # launch the dyndoc server
 
 ## Dyndoc server started as a daemon
 
-* on MacOSX, `launchctl`:  
-  * `dyn-init srv new` (create the service and load it automatically)
-  * `dyn-init srv start|stop` (start or stop the service)
-  * `dyn-init srv list` (list the status of the service)
-  * `dyn-init srv load|unload` (load or unload the service already created)
-  * Rmk: to manage launchctl see `gem install lunchy` or `LaunchControl` (`brew cask install launchcontrol` but it is commercial alternative)
-* on Windows, `task scheduler` and `bat_to_exe converter`
+* on MacOSX, `launchctl`:
+  * `gem install dyn-ruby-launchctl`
+  * `dyn-daemon srv new` (create the service and load it automatically)
+  * `dyn-daemon srv start|stop` (start or stop the service)
+  * `dyn-daemon srv status` (list the status of the service)
+  * `dyn-daemon srv load|unload` (load or unload the service already created)
+* on Windows,
+  * `gem install dyn-ruby-win32daemon`
+  * `dyn-daemon srv start|stop` (start or stop the daemon)
+  * `dyn-daemon srv status` (list the status of the daemon)
 * on linux, `upstart`
 
 ## Dyndoc Package Manager
