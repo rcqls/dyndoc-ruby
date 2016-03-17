@@ -33,6 +33,7 @@ Dyndoc relies mainly in `ruby` and `R`. As a document maker, it is better to als
 brew install libxml2 gmp
 R -e 'install.packages("devtools",repos="http://cran.rstudio.com/")'
 R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
+R -e 'install.packages("base64",repos="http://cran.rstudio.com/")'
 ```
 
 ### for Ubuntu (or linux Ubuntu-based distribution) user
