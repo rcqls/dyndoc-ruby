@@ -10,16 +10,21 @@ Dyndoc relies mainly in `ruby` and `R`. As a document maker, it is better to als
 
 * requirements
   * `ruby`: [Xcode](https://developer.apple.com/downloads/) provides one and [homebrew](http://brew.sh) is based on ruby.
+  * gem config: create ~/.gemrc containing `gem: --user-install --no-ri --no-rdoc`. This simply defines the default behavior of `gem` command. `--no-ri --no-rdoc` avoids to generate documentation when '--user-install' installs gem at the predefined user folder `~/.gem/ruby/<ruby-version>`. **Important**: do not forget then to add the following lines in your `.bash_profile`:
+```{bash}
+if which ruby >/dev/null && which gem >/dev/null; then
+    PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+fi
+```
   * Command-line tools for Xcode (to access ruby): inside Terminal, `xcode-select --install`
   (details is proposed in the [homebrew github](https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Installation.md#installation) website).
-  * [homebrew](http://brew.sh) (optional but I love it as a linux user)
+  * [homebrew](http://brew.sh) (can be avoided but, as a linux user, I love it)
   * [homebrew-cask](http://caskroom.io) optional but nice-to-have if you are in love with command-line to install applications: `brew tap caskroom/cask`
   * [R](http://cran.r-project.org/bin/macosx/) or `brew cask install r`
   * [latex (MacTex)](http://www.tug.org/mactex/) or `brew cask install mactex`
   * `git`: `brew install git`
   * [pandoc](https://github.com/jgm/pandoc/releases) or `brew cask install pandoc`
-  * optional but nice-to-have:
-    * `(sudo) gem install asciidoctor --no-ri --no-rdoc`
+  * optional but nice-to-have (do it after main installation):
     * [Ttm](http://hutchinson.belmont.ma.us/tth/mml) from source
 * ruby gems
   * `(sudo) gem install dyndoc-ruby --no-ri --no-rdoc`
@@ -32,7 +37,7 @@ R -e 'devtools::install_github("rcqls/rb4R",args="--no-multiarch")'
 
 ### for Ubuntu (or linux Ubuntu-based distribution) user
 
-Note that generally linux user from other distributions knows how to adapt the following steps.
+Note that linux user from other distributions generally knows how to adapt the following steps to his own linux distribution.
 
 * [R](http://sites.psu.edu/theubunturblog/installing-r-in-ubuntu/),  [ruby](https://www.brightbox.com/docs/ruby/ubuntu/), git and dyndoc install
 ```{bash}
@@ -180,7 +185,45 @@ dyn-srv                               # launch the dyndoc server
   * `gem install dyn-ruby-win32daemon`
   * `dyn-daemon srv start|stop` (start or stop the daemon)
   * `dyn-daemon srv status` (list the status of the daemon)
-* on linux, `upstart`
+* on linux, `upstart`:
+  * dyn server: adapt the following to your needs (APPUSER and APPDIR)
+```{bash}
+author "rcqls"
+description "start and stop dyn-srv for Ubuntu (upstart)"
+version "0.1"
+
+start on started networking
+stop on runlevel [!2345]
+
+env APPUSER="cqls"
+env APPDIR="/home/cqls/.gem/ruby/2.2.0/bin"
+env APPBIN="dyn-srv"
+
+respawn
+
+script
+  exec su - $APPUSER -c "$APPDIR/$APPBIN"
+end script
+```
+  * dyntask server: adapt the following to your needs (APPUSER and APPDIR)
+```{bash}
+author "rcqls"
+description "start and stop dyntask for Ubuntu (upstart)"
+version "0.1"
+
+start on started networking
+stop on runlevel [!2345]
+
+env APPUSER="cqls"
+env APPDIR="/home/cqls/.gem/ruby/2.2.0/bin"
+env APPBIN="dyntask-server"
+
+respawn
+
+script
+exec su - $APPUSER -c "$APPDIR/$APPBIN"
+end script
+```
 
 ## Dyndoc Package Manager
 

@@ -21,6 +21,13 @@ spec = Gem::Specification.new do |s|
     s.add_dependency("dyndoc-ruby-core","~>1.0",">=1.0.0")
     s.add_dependency("dyndoc-ruby-doc","~>1.0",">=1.0.0")
     s.add_dependency("dyndoc-ruby-exec","~>0.1",">=0.1.0")
+    s.add_dependency("dyntask-ruby","~>0.3",">=0.3.3")
+    if RUBY_PLATFORM =~ /darwin/
+      s.add_dependency("dyn-ruby-launchctl","~>0.1",">=0.1.0")
+    elsif RUBY_PLATFORM =~ /mswin|mingw/i
+      s.add_dependency("dyn-ruby-win32daemon","~>0.1",">=0.1.0")
+    end
+    s.add_dependency("asciidoctor","~>1.5",">=1.5.3")
     s.require_path = 'lib'
     s.bindir = 'bin'
     s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << "dyn-forever" << 'dpm' << 'dyn-init'
