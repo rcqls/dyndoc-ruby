@@ -2,7 +2,7 @@
 
 for cmd in "dyn-srv" "dyntask-server"
 do
-  conf = "${cmd}.conf"
+  conf="${cmd}.conf"
   echo "author \"rcqls\"" > "${conf}"
   echo "description \"start and stop dyn-srv for Ubuntu (upstart)\"" >> "${conf}"
   echo "version \"0.1\"" >> "${conf}"
