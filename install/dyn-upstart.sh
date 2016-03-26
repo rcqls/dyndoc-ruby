@@ -17,7 +17,7 @@ do
   echo "respawn" >> "${conf}"
   echo "" >> "${conf}"
   echo "script" >> "${conf}"
-  echo "  exec su - \${APPUSER} -c \"\$APPDIR/\$APPBIN\"" >> "${conf}"
+  echo '  exec su - $APPUSER -c "$APPDIR/$APPBIN"' >> "${conf}"
   echo "end script" >> "${conf}"
   sudo mv "${conf}" /etc/init/
 done
