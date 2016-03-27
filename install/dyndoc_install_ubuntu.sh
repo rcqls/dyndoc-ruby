@@ -75,7 +75,7 @@ echo "dyndoc init"
 dyn-init
 dyntask-init
 
-read -p "Do you want to install dyn-srv.conf and dyntask.conf upstart [Y/N]" -n 1 -r
+read -p "Do you want to install dyn-srv.conf and dyntask-server.conf upstart [Y/N]" -n 1 -r
 echo
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
 	for cmd in "dyn-srv" "dyntask-server"
