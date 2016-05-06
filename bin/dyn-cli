@@ -21,8 +21,12 @@ module Dyndoc
 			dyndoc_cmd += "_with_libs_reinit" if reinit.include? :dyndoc_libs
 			dyndoc_cmd += "_with_layout_reinit" if reinit.include? :dyndoc_layout
 
-			Socket.tcp(addr, 7777) {|sock|
-  				sock.print '__send_cmd__[['+dyndoc_cmd+'|'+@tmpl_filename+']]__' + @cmd + @@end_token
+#p [:addr,@addr]
+			Socket.tcp(@addr, @port) {|sock|
+					msg='__send_cmd__[['+dyndoc_cmd+'|'+@tmpl_filename+']]__' + @cmd + @@end_token
+					#p msg
+  				sock.print msg
+					#sleep 1
   				sock.close_write
   				@result=sock.read
 			}

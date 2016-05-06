@@ -55,7 +55,7 @@ module Dyndoc
   		loop {
   			socket = @server.accept
 
-  			b=socket.recv(100000)
+  			b=socket.read #recv(100000)
   			##p [:b,b]
   			data=b.to_s.strip
   			##p [:data,data]

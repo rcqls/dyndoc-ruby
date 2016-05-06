@@ -7,12 +7,11 @@ arg="path" if !arg or arg.empty?
 case arg
 when "help"
 	puts <<-DOC
-launchctl helpers to launch dyn-srv service.
-Usage: dyn-init path    => create ~/dyndoc folder
-dyn-init srv new|load   => create when not existing the dyn-srv service
-dyn-init srv unload     => unload existing service
-dyn-init srv start/stop => start/stop the dyn-srv service
-dyn-init srv [list]     => list dyn-srv service
+Usage:
+	## create ~/dyndoc folder and initialize some sharing
+	dyn-init path
+	## add room folder
+	dyn-init sync	<room_id>:<room_folder_full_path>@<room_remote_wordir>
 DOC
 when "path"
 	share_path=File.expand_path("../../share", __FILE__)
@@ -22,5 +21,15 @@ when "path"
 		FileUtils.cp_r File.join(share_path,"."),dyndoc_path
 	else
 		puts "Warning: #{dyndoc_path} folder already exists!"
+	end
+when "sync"
+	require 'fileutils'
+	FileUtils.mkdir_p (etc=File.join(ENV["HOME"],"dyndoc","etc"))
+	room_sync=File.join(etc,".room_sync")
+	room_dirs=(File.exists? room_sync) ? eval(File.read(room_sync)) : {}
+	if ARGV[1] =~ /([^\:@]*)\:([^\:@]*)@([^\:@]*)/
+		room_id,room_local,room_remote=$1,$2,$3
+		room_dirs[room_id]={local: room_local, remote: room_remote}
+		File.open(room_sync,"w") {|f| f << room_dirs.inspect }
 	end
 end

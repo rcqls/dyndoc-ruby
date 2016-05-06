@@ -3,6 +3,9 @@ require 'dyndoc/document'
 
 ## p Dyndoc.cfg_dir
 
+## To be used for remote at the end
+args_saved=ARGV.dup
+
 args=ARGV.select{|name|
   if (name[0,2]!="--" and name.include? "=")
     key,*val=name.split("=")
@@ -56,6 +59,10 @@ OptionParser.new do |opts|
     Settings["cfg_dyn.cmd_doc"] = [:list]
   end
 
+  # opts.on("-r", "--remote", "pandoc or pdflatex (dyn)task performed remotely") do
+  #   Settings["cfg_dyn.remote_dyntask"] = true
+  # end
+
   opts.on('-D','--debug','debug mode') do
     Settings['cfg_dyn.debug']=true
   end
@@ -74,6 +81,38 @@ end.parse!(args)
 ## ARGV is consumed before except
 doc=args[0]
 
-d=Dyndoc::TemplateDocument.new(doc)
+# Example remote call
+# dyn <options> dyn://<room-id>/<dyndoc-file>[.dyn]
+if doc=~ /^dyn\:\/\/([^\/]*)\/(.*)(?:\.dyn)?$/
+  room_id,dyn_file=$1,$2
 
-d.make_all
+  room_sync=File.join(ENV["HOME"],"dyndoc","etc",".room_sync")
+	if File.exists? room_sync
+    room_dirs=eval(File.read(room_sync))
+    room_dir=room_dirs[room_id]
+    if room_dir
+      dyn_file=File.expand_path(dyn_file)
+      dyn_dir=File.dirname dyn_file
+      dyn_base=File.basename dyn_file,".dyn"
+      ## Copy files first
+      [".dyn",".dyn_lib"].each do |ext|
+        file=dyn_base+ext
+        if File.exists? (file_to_copy=File.join(dyn_dir,file))
+          require 'fileutils'
+          FileUtils.cp file_to_copy,File.join(room_dir[:local],file)
+        end
+      end
+      ## create task after ##TODO cheksum: to check that required files are present
+      task=[{cmd: "dyn", workdir: File.join("..","rooms",room_dir[:remote]), source: dyn_base+".dyn", options: args[0...-1].join(" ")}]
+      File.open(File.join(room_dir[:local],"..",".run",dyn_base+".task_dyn"),"w") do |f|
+        f << task.inspect
+      end
+    end
+  end
+
+else
+
+  d=Dyndoc::TemplateDocument.new(doc)
+
+  d.make_all
+end
