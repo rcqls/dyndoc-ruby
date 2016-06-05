@@ -55,8 +55,11 @@ module Dyndoc
   		loop {
   			socket = @server.accept
 
-  			b=socket.read #recv(100000)
-  			##p [:b,b]
+        b=socket.gets("__[[END_TOKEN]]__")
+  			#b=socket.read
+        #b=socket.recv(100000)
+  			##
+        p [:b,b]
   			data=b.to_s.strip
   			##p [:data,data]
   			if data =~ /^__send_cmd__\[\[([a-z,_]*)\|?([^\]]*)?\]\]__(.*)__\[\[END_TOKEN\]\]__$/m
