@@ -33,17 +33,18 @@ module Dyndoc
 
 
     def process_dyndoc(content)
-      ##p [:process_dyndoc_content,content]
+      ##Dyndoc.warn :process_dyndoc_content,content
       @content=@tmpl_mngr.parse(content)
       ##Dyndoc.warn :content, @content
-      @tmpl_mngr.filterGlobal.envir["body.content"]=@content
+      @tmpl_mngr.filterGlobal.envir["body.content"]=Dyndoc::Utils.protect_dyn_block_for_atom(@content)
+      ##Dyndoc.warn :body_content,@tmpl_mngr.filterGlobal.envir["body.content"]
       if @tmpl_filename
         @tmpl_mngr.filterGlobal.envir["_FILENAME_CURRENT_"]=@tmpl_filename.dup
         @tmpl_mngr.filterGlobal.envir["_FILENAME_"]=@tmpl_filename.dup #register name of template!!!
         @tmpl_mngr.filterGlobal.envir["_FILENAME_ORIG_"]=@tmpl_filename.dup #register name of template!!!
         @tmpl_mngr.filterGlobal.envir["_PWD_"]=File.dirname(@tmpl_filename)
       end
-      return @content
+      return Dyndoc::Utils.unprotect_dyn_block_for_atom(@content)
     end
 
     def init_server
@@ -55,11 +56,13 @@ module Dyndoc
   		loop {
   			socket = @server.accept
 
+        ## Rmk: I can't remember the whole story but I started with recv and then need read (but did not notice that the atom-plugin did not work anymore). gets() seems to be the solution.
+        ## read and gets are blocking and recv is not
         b=socket.gets("__[[END_TOKEN]]__")
   			#b=socket.read
         #b=socket.recv(100000)
-  			##
-        p [:b,b]
+
+  			##p [:b,b]
   			data=b.to_s.strip
   			##p [:data,data]
   			if data =~ /^__send_cmd__\[\[([a-z,_]*)\|?([^\]]*)?\]\]__(.*)__\[\[END_TOKEN\]\]__$/m
