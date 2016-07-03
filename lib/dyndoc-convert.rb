@@ -62,7 +62,7 @@ module Dyndoc
 
         if cfg["layout"]
           cfg_tmp=File.join(dyn_root,cfg["layout"])
-          dyn_layout=File.read(cfg_tmp) if !dyn_layout and File.exist? cfg_tmp
+          dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
         end
         if cfg["pre"]
           cfg_tmp=File.join(dyn_root,cfg["pre"])
