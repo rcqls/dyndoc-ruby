@@ -38,4 +38,59 @@ module Dyndoc
     return cli.content
   end
 
+  def Dyndoc.cli_convert_from_file(dyn_file,dyn_out_file)
+    addr="127.0.0.1"
+
+    dyn_libs=nil
+
+    if i=(dyn_file =~ /\_?(?:html)?\.dyn$/)
+
+      ## Dyn layout
+      dyn_layout=dyn_file[0...i]+"_layout.dyn" if File.exist? dyn_file[0...i]+"_layout.dyn"
+
+      ## Dyn pre
+      dyn_pre_code=File.read(dyn_file[0...i]+"_pre.dyn") if File.exist? dyn_file[0...i]+"_pre.dyn"
+
+      ## Dyn post
+      dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
+
+      if File.exist? dyn_file[0...i]+"_.dyn_cfg"
+        require 'yaml'
+        cfg=YAML::load_file(dyn_file[0...i]+"_.dyn_cfg")
+        dyn_layout=File.read(cfg["layout"]) if !dyn_layout and File.exist? cfg["layout"]
+        dyn_pre_code=File.read(cfg["pre"]) unless dyn_pre_code and File.exist? cfg["pre"]
+        dyn_post_code=File.read(cfg["post"]) unless dyn_post_code and File.exist? cfg["post"]
+        dyn_libs=File.read(cfg["libs"]).strip if File.exist? cfg["libs"]
+      end
+
+    end
+
+
+    ## code to evaluate
+    code=File.read(dyn_file)
+  	if dyn_libs or dyn_pre_code
+  		code_pre = ""
+  		code_pre += dyn_pre_code + "\n" if dyn_pre_code
+  		code_pre += '[#require]'+"\n"+dyn_libs if dyn_libs
+  		code = code_pre + '[#main][#>]' + code
+  	end
+  	code += "\n" + dyn_post_code if dyn_post_code
+  	code = dyn_tag_tmpl+code if dyn_tag_tmpl
+  	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
+
+    cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
+
+  	if dyn_layout
+  	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
+  	end
+
+  	if dyn_out_file and Dir.exist? File.dirname(dyn_out_file)
+  		File.open(dyn_out_file,"w") do |f|
+  			f << cli.content
+  		end
+  	else
+  		puts cli.content
+  	end
+  end
+
 end
