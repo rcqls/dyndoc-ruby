@@ -54,19 +54,25 @@ module Dyndoc
       ## Dyn post
       dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
 
-      if File.exist? dyn_file[0...i]+"_.dyn_cfg"
+      if File.exist? dyn_file[0...i]+".dyn_cfg"
         require 'yaml'
-        cfg=YAML::load_file(dyn_file[0...i]+"_.dyn_cfg")
+        cfg=YAML::load_file(dyn_file[0...i]+".dyn_cfg")
+
         dyn_root= cfg["root"] || File.expand_path("..",dyn_file)
 
-        cfg_tmp=File.join(dyn_root,cfg["layout"])
-        dyn_layout=File.read(cfg_tmp) if !dyn_layout and File.exist? cfg_tmp
+        if cfg["layout"]
+          cfg_tmp=File.join(dyn_root,cfg["layout"])
+          dyn_layout=File.read(cfg_tmp) if !dyn_layout and File.exist? cfg_tmp
+        end
+        if cfg["pre"]
+          cfg_tmp=File.join(dyn_root,cfg["pre"])
+          dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
+        end
 
-        cfg_tmp=File.join(dyn_root,cfg["pre"])
-        dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
-
-        cfg_tmp=File.join(dyn_root,cfg["post"])
-        dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
+        if cfg["post"]
+          cfg_tmp=File.join(dyn_root,cfg["post"])
+          dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
+        end
 
         dyn_libs=File.read(cfg["libs"]).strip if File.exist? cfg["libs"]
 
