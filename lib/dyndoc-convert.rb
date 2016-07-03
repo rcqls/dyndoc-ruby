@@ -74,9 +74,9 @@ module Dyndoc
           dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
         end
 
-        dyn_libs=File.read(cfg["libs"]).strip if File.exist? cfg["libs"]
+        dyn_libs=cfg["libs"].strip if cfg["libs"]
 
-        dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if File.exist? cfg["tags"]
+        dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if cfg["tags"]
       end
 
     end
