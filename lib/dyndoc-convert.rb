@@ -41,7 +41,7 @@ module Dyndoc
   def Dyndoc.cli_convert_from_file(dyn_file,dyn_out_file)
     addr="127.0.0.1"
 
-    dyn_libs=nil
+    dyn_libs,dyn_tags=nil,nil
 
     if i=(dyn_file =~ /\_?(?:html)?\.dyn$/)
 
@@ -61,6 +61,7 @@ module Dyndoc
         dyn_pre_code=File.read(cfg["pre"]) unless dyn_pre_code and File.exist? cfg["pre"]
         dyn_post_code=File.read(cfg["post"]) unless dyn_post_code and File.exist? cfg["post"]
         dyn_libs=File.read(cfg["libs"]).strip if File.exist? cfg["libs"]
+        dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if File.exist? cfg["tags"]
       end
 
     end
@@ -75,7 +76,7 @@ module Dyndoc
   		code = code_pre + '[#main][#>]' + code
   	end
   	code += "\n" + dyn_post_code if dyn_post_code
-  	code = dyn_tag_tmpl+code if dyn_tag_tmpl
+  	code = dyn_tags + code if dyn_tags
   	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
 
     cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
