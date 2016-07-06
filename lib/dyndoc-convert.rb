@@ -38,7 +38,8 @@ module Dyndoc
     return cli.content
   end
 
-  def Dyndoc.cli_convert_from_file(dyn_file,dyn_out_file)
+  ## TODO: a config.yml file for the site
+  def Dyndoc.cli_convert_from_file(dyn_file,dyn_out_file,dyn_root=nil)
     addr="127.0.0.1"
 
     dyn_libs,dyn_tags=nil,nil
@@ -54,59 +55,78 @@ module Dyndoc
       ## Dyn post
       dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
 
+      cfg={}
+
       if File.exist? dyn_file[0...i]+".dyn_cfg"
         require 'yaml'
         cfg=YAML::load_file(dyn_file[0...i]+".dyn_cfg")
-
-        dyn_root= cfg["root"] || File.expand_path("..",dyn_file)
-
-        if cfg["layout"]
-          cfg_tmp=File.join(dyn_root,cfg["layout"])
-          dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
-        end
-        if cfg["pre"]
-          cfg_tmp=File.join(dyn_root,cfg["pre"])
-          dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
-        end
-
-        if cfg["post"]
-          cfg_tmp=File.join(dyn_root,cfg["post"])
-          dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
-        end
-
-        dyn_libs=cfg["libs"].strip if cfg["libs"]
-
-        dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if cfg["tags"]
       end
 
+      ## code to evaluate
+      code=File.read(dyn_file)
+
+      page=nil
+
+      if code =~ /^\-{3}/
+        b=code.split(/^\-{3}/
+        if b[0].empty?
+          require 'yaml'
+          page=YAML.load(b[1])
+          cfg.merge!(page)
+        end
+      end
+
+      # dyn_root can be overwritten by cfg
+      dyn_root= cfg["root"] || dyn_root || File.expand_path("..",dyn_file)
+
+      if cfg["layout"]
+        cfg_tmp=File.join(dyn_root,cfg["layout"])
+        dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
+      end
+      if cfg["pre"]
+        cfg_tmp=File.join(dyn_root,cfg["pre"])
+        dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
+      end
+
+      if cfg["post"]
+        cfg_tmp=File.join(dyn_root,cfg["post"])
+        dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
+      end
+
+      if cfg["out_file"] #relative path from (dyn_)root
+        dyn_out_file=File.join(dyn_root,cfg["out_file"])
+      end
+
+      dyn_libs=cfg["libs"].strip if cfg["libs"]
+
+      dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if cfg["tags"]
+
+    	if dyn_libs or dyn_pre_code
+    		code_pre = ""
+    		code_pre += dyn_pre_code + "\n" if dyn_pre_code
+    		code_pre += '[#require]'+"\n"+dyn_libs if dyn_libs
+    		code = code_pre + '[#main][#>]' + code
+    	end
+    	code += "\n" + dyn_post_code if dyn_post_code
+      ## TO TEST!!!
+    	code = dyn_tags + code if dyn_tags
+      code = "[#rb<]page = " + page.inspect + "[#>]" +code if page
+    	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
+
+      cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
+
+    	if dyn_layout
+    	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
+    	end
+
+    	if dyn_out_file and Dir.exist? File.dirname(dyn_out_file)
+    		File.open(dyn_out_file,"w") do |f|
+    			f << cli.content
+    		end
+    	else
+    		puts cli.content
+    	end
     end
-
-
-    ## code to evaluate
-    code=File.read(dyn_file)
-  	if dyn_libs or dyn_pre_code
-  		code_pre = ""
-  		code_pre += dyn_pre_code + "\n" if dyn_pre_code
-  		code_pre += '[#require]'+"\n"+dyn_libs if dyn_libs
-  		code = code_pre + '[#main][#>]' + code
-  	end
-  	code += "\n" + dyn_post_code if dyn_post_code
-  	code = dyn_tags + code if dyn_tags
-  	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
-
-    cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
-
-  	if dyn_layout
-  	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
-  	end
-
-  	if dyn_out_file and Dir.exist? File.dirname(dyn_out_file)
-  		File.open(dyn_out_file,"w") do |f|
-  			f << cli.content
-  		end
-  	else
-  		puts cli.content
-  	end
   end
 
 end
