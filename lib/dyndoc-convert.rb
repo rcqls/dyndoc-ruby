@@ -68,7 +68,7 @@ module Dyndoc
       page=nil
 
       if code =~ /^\-{3}/
-        b=code.split(/^\-{3}/
+        b=code.split(/^\-{3}/)
         if b[0].empty?
           require 'yaml'
           page=YAML.load(b[1])
