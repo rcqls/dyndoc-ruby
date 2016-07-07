@@ -82,7 +82,7 @@ module Dyndoc
       html_root= cfg["html_root"] || root[:html] || File.expand_path("..",dyn_file)
 
       if cfg["layout"]
-        cfg_tmp=File.join(dyn_root,cfg["layout"])
+        cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
       if cfg["pre"]
