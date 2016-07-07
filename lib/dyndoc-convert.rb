@@ -73,6 +73,7 @@ module Dyndoc
           require 'yaml'
           page=YAML.load(b[1])
           cfg.merge!(page)
+          code=b[2..-1].join("---")
         end
       end
 
