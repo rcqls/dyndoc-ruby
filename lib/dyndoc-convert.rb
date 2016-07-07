@@ -1,5 +1,6 @@
 require "dyndoc-core"
 require 'dyndoc/cli/interactive-client.rb'
+require 'yaml'
 
 
 module Dyndoc
@@ -42,9 +43,23 @@ module Dyndoc
   def Dyndoc.cli_convert_from_file(dyn_file,html_file,root={}) #ex: root={dyn: , html: }
     addr="127.0.0.1"
 
+    return unless root[:dyn]
+
     dyn_libs,dyn_tags=nil,nil
 
+    ## requirement: dyn_file is provided relatively to the root[:dyn] (for security reason too)
+
+    dyn_path=dyn_file.split(File::Separator)
+
+    dyn_file=File.join(root[:dyn],dyn_file) unless dyn_file[0]=="/"
+
     if i=(dyn_file =~ /\_?(?:html)?\.dyn$/)
+
+      cfg={}
+      ## find the previous config.yml in the tree folder
+      cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join(root[:dyn],pa,"config.yml")}.reverse
+      cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
+      cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
 
       ## Dyn layout
       dyn_layout=dyn_file[0...i]+"_layout.dyn" if File.exist? dyn_file[0...i]+"_layout.dyn"
@@ -55,11 +70,10 @@ module Dyndoc
       ## Dyn post
       dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
 
-      cfg={}
 
       if File.exist? dyn_file[0...i]+".dyn_cfg"
-        require 'yaml'
-        cfg=YAML::load_file(dyn_file[0...i]+".dyn_cfg")
+        cfg.merge!{YAML::load_file(dyn_file[0...i]+".dyn_cfg")}
+      else # try do find (in the Zope spirit) a config file in the nearest folder
       end
 
       ## code to evaluate
@@ -95,8 +109,12 @@ module Dyndoc
         dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
       end
 
-      if cfg["html_file"] #relative path from (dyn_)root
-        html_file=File.join(html_root,cfg["html_file"])
+      ## deal with html_file
+      html_file=File.join(html_root,cfg["html_file"] || html_file)
+      unless File.exist? html_file
+        dirname=File.dirname(html_file)
+        require 'fileutils'
+        FileUtils.mkdir_p dirname
       end
 
       dyn_libs=cfg["libs"].strip if cfg["libs"]
