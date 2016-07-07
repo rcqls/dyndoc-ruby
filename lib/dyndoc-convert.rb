@@ -39,7 +39,7 @@ module Dyndoc
   end
 
   ## TODO: a config.yml file for the site
-  def Dyndoc.cli_convert_from_file(dyn_file,dyn_html_file,root={}) #ex: root={dyn: , html: }
+  def Dyndoc.cli_convert_from_file(dyn_file,html_file,root={}) #ex: root={dyn: , html: }
     addr="127.0.0.1"
 
     dyn_libs,dyn_tags=nil,nil
@@ -96,7 +96,7 @@ module Dyndoc
       end
 
       if cfg["html_file"] #relative path from (dyn_)root
-        dyn_html_file=File.join(html_root,cfg["html_file"])
+        html_file=File.join(html_root,cfg["html_file"])
       end
 
       dyn_libs=cfg["libs"].strip if cfg["libs"]
@@ -121,8 +121,8 @@ module Dyndoc
     	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
     	end
 
-    	if dyn_html_file and Dir.exist? File.dirname(dyn_html_file)
-    		File.open(dyn_html_file,"w") do |f|
+    	if html_file and Dir.exist? File.dirname(html_file)
+    		File.open(html_file,"w") do |f|
     			f << cli.content
     		end
     	else
