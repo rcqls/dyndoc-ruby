@@ -39,7 +39,7 @@ module Dyndoc
   end
 
   ## TODO: a config.yml file for the site
-  def Dyndoc.cli_convert_from_file(dyn_file,dyn_out_file,dyn_root=nil)
+  def Dyndoc.cli_convert_from_file(dyn_file,dyn_html_file,root={}) #ex: root={dyn: , html: }
     addr="127.0.0.1"
 
     dyn_libs,dyn_tags=nil,nil
@@ -78,7 +78,8 @@ module Dyndoc
       end
 
       # dyn_root can be overwritten by cfg
-      dyn_root= cfg["root"] || dyn_root || File.expand_path("..",dyn_file)
+      dyn_root= cfg["dyn_root"] || root[:dyn] || File.expand_path("..",dyn_file)
+      html_root= cfg["html_root"] || root[:html] || File.expand_path("..",dyn_file)
 
       if cfg["layout"]
         cfg_tmp=File.join(dyn_root,cfg["layout"])
@@ -94,8 +95,8 @@ module Dyndoc
         dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
       end
 
-      if cfg["out_file"] #relative path from (dyn_)root
-        dyn_out_file=File.join(dyn_root,cfg["out_file"])
+      if cfg["html_file"] #relative path from (dyn_)root
+        dyn_html_file=File.join(html_root,cfg["html_file"])
       end
 
       dyn_libs=cfg["libs"].strip if cfg["libs"]
@@ -120,8 +121,8 @@ module Dyndoc
     	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
     	end
 
-    	if dyn_out_file and Dir.exist? File.dirname(dyn_out_file)
-    		File.open(dyn_out_file,"w") do |f|
+    	if dyn_html_file and Dir.exist? File.dirname(dyn_html_file)
+    		File.open(dyn_html_file,"w") do |f|
     			f << cli.content
     		end
     	else
