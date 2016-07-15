@@ -59,6 +59,10 @@ OptionParser.new do |opts|
     Settings["cfg_dyn.cmd_doc"] = [:list]
   end
 
+  opts.on("-j", "--jl", "import julia") do
+    Settings["cfg_dyn.langs"] << :jl
+  end
+
   # opts.on("-r", "--remote", "pandoc or pdflatex (dyn)task performed remotely") do
   #   Settings["cfg_dyn.remote_dyntask"] = true
   # end

@@ -119,7 +119,7 @@ module Dyndoc
 
       dyn_libs=cfg["libs"].strip if cfg["libs"]
 
-      dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}" if cfg["tags"]
+      dyn_tags="[#<]{#opt]"+cfg["tags"].strip+"[#opt}[#>]" if cfg["tags"]
 
     	if dyn_libs or dyn_pre_code
     		code_pre = ""
@@ -129,8 +129,8 @@ module Dyndoc
     	end
     	code += "\n" + dyn_post_code if dyn_post_code
       ## TO TEST!!!
-    	code = dyn_tags + code if dyn_tags
       code = "[#rb<]page = " + page.inspect + "[#>]" +code if page
+      code = dyn_tags + code if dyn_tags
     	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
 
       cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
