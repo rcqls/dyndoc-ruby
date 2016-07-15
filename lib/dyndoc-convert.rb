@@ -71,8 +71,8 @@ module Dyndoc
       dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
 
 
-      if File.exist? dyn_file[0...i]+".dyn_cfg"
-        cfg.merge!{YAML::load_file(dyn_file[0...i]+".dyn_cfg")}
+      if File.exist? dyn_file[0...i]+".dyn_cfg" and (yml=YAML::load_file(dyn_file[0...i]+".dyn_cfg"))
+        cfg.merge!(yml)
       else # try do find (in the Zope spirit) a config file in the nearest folder
       end
 
