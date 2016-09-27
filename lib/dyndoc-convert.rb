@@ -57,6 +57,7 @@ module Dyndoc
 
       cfg={}
       ## find the previous config.yml in the tree folder
+      ## TODO: read all previous config.yml and merge them from root to current
       cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join(root[:dyn],pa,"config.yml")}.reverse
       cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
       cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
@@ -96,18 +97,34 @@ module Dyndoc
       html_root= cfg["html_root"] || root[:html] || File.expand_path("..",dyn_file)
 
       if cfg["layout"]
-        cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
+        if cfg["layout"][0] == "%" #user mode
+          cfg_tmp=File.join(root[:dyn],'users',root[:user],cfg["layout"][1..-1])
+        else
+          cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
+        end
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
       if cfg["pre"]
-        cfg_tmp=File.join(dyn_root,cfg["pre"])
+        if cfg["pre"][0] == "%" #user mode
+          cfg_tmp=File.join(root[:dyn],'users',root[:user],cfg["pre"][1..-1])
+        else
+          #cfg_tmp=File.join(dyn_root,cfg["pre"])
+          cfg_tmp=File.join(dyn_root,cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["preload",cfg["pre"]])
+        end
         dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
       end
 
       if cfg["post"]
-        cfg_tmp=File.join(dyn_root,cfg["post"])
+        if cfg["post"][0] == "%" #user mode
+          cfg_tmp=File.join(root[:dyn],'users',root[:user],cfg["post"][1..-1])
+        else
+          #cfg_tmp=File.join(dyn_root,cfg["post"])
+          cfg_tmp=File.join(dyn_root,cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["postload",cfg["post"]])
+        end
         dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
       end
+
+
 
       ## deal with html_file
       html_file=File.join(html_root,cfg["html_file"] || html_file)
@@ -129,6 +146,7 @@ module Dyndoc
     	end
     	code += "\n" + dyn_post_code if dyn_post_code
       ## TO TEST!!!
+      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ")[#>]" +code
       code = "[#rb<]page = " + page.inspect + "[#>]" +code if page
       code = dyn_tags + code if dyn_tags
     	dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
