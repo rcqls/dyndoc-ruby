@@ -35,7 +35,7 @@ spec = Gem::Specification.new do |s|
     s.add_runtime_dependency "asciidoctor",">=1.5.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << "dyn-forever" << 'dpm' << 'dyn-init'
+    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-init'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.
