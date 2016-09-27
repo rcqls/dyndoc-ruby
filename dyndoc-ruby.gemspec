@@ -33,6 +33,7 @@ spec = Gem::Specification.new do |s|
     #  s.add_dependency("dyn-ruby-win32daemon","~>0.1",">=0.1.0")
     #end
     s.add_runtime_dependency "asciidoctor",">=1.5.3"
+    s.add_runtime_dependency "redcarpet",">=3.3.4"
     s.require_path = 'lib'
     s.bindir = 'bin'
     s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-init'
