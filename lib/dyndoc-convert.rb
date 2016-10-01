@@ -7,6 +7,22 @@ module Dyndoc
 
   @@dyndoc_tmpl_mngr=nil
 
+  def Dyndoc.process_html_file_from_dyn_file(code,html_file,dyn_file,dyn_layout,addr,dyndoc_start)
+    cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
+
+    if dyn_layout
+      cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
+    end
+
+    if html_file and Dir.exist? File.dirname(html_file)
+      File.open(html_file,"w") do |f|
+        f << cli.content
+      end
+    else
+      puts cli.content
+    end
+  end
+
   ## does notwork when called twice!!!! (ex: jekyll-dyndoc in mode dyndoc)
   def Dyndoc.convert(input,config={})
     unless @@dyndoc_tmpl_mngr
@@ -51,7 +67,25 @@ module Dyndoc
 
     dyn_path=dyn_file.split(File::Separator)
 
+    ## Complete info related to the related dyn file
+    html_files=opts[:html_files]
+    if opts[:user]
+      html_urls={}
+      html_files.each{|tag,html_file| html_urls[tag]=(html_file =~ /^\/users\/#{opts[:user]}(.*)/ ? $1 : html_file)}
+      html_files=html_urls
+    end
+
+    cfg_files={
+      fullname: dyn_file,
+      basename: File.basename(dyn_file,".*"),
+      long_url: html_file,
+      url: File.basename(html_file,".*"),
+      tag: opts[:doc_tag],
+      urls: html_files
+    }
+
     dyn_file=File.join(opts[:dyn_root],dyn_file) unless dyn_file[0]=="/"
+
 
     if i=(dyn_file =~ /\_?(?:html)?\.dyn$/)
 
@@ -61,6 +95,9 @@ module Dyndoc
       cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join(opts[:dyn_root],pa,"config.yml")}.reverse
       cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
       cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
+
+      ## add info related to dyn file
+      cfg.merge!(cfg_files)
 
       ## Dyn layout
       dyn_layout=dyn_file[0...i]+"_layout.dyn" if File.exist? dyn_file[0...i]+"_layout.dyn"
@@ -80,7 +117,7 @@ module Dyndoc
       ## code to evaluate
       code=File.read(dyn_file)
 
-      page=nil
+      page={}
 
       if code =~ /^\-{3}/
         b=code.split(/^(\-{3,})/,-1)
@@ -97,16 +134,17 @@ module Dyndoc
       html_root= cfg["html_root"] || opts[:html_root] || File.expand_path("..",dyn_file)
 
       if cfg["layout"]
-        if cfg["layout"][0] == "%" #user mode
-          cfg_tmp=File.join(opts[:dyn_root],'users',opts[:user],cfg["layout"][1..-1])
+        if cfg["layout"][0] == "~" #user mode
+          cfg_tmp=File.join(opts[:dyn_root],'users',cfg["layout"][1] == "/" ? File.join(opts[:user],cfg["layout"][1..-1]) : cfg["layout"][1..-1])
         else
           cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
         end
+        Dyndoc.warn :layout,cfg_tmp
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
       if cfg["pre"]
-        if cfg["pre"][0] == "%" #user mode
-          cfg_tmp=File.join(opts[:dyn_root],'users',opts[:user],cfg["pre"][1..-1])
+        if cfg["pre"][0] == "~" #user mode
+          cfg_tmp=File.join(opts[:dyn_root],'users',cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["pre",cfg["pre"]])
         else
           #cfg_tmp=File.join(dyn_root,cfg["pre"])
           cfg_tmp=File.join(dyn_root,cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["preload",cfg["pre"]])
@@ -115,8 +153,8 @@ module Dyndoc
       end
 
       if cfg["post"]
-        if cfg["post"][0] == "%" #user mode
-          cfg_tmp=File.join(opts[:dyn_root],'users',opts[:user],cfg["post"][1..-1])
+        if cfg["post"][0] == "~" #user mode
+          cfg_tmp=File.join(opts[:dyn_root],'users',cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["post",cfg["post"]])
         else
           #cfg_tmp=File.join(dyn_root,cfg["post"])
           cfg_tmp=File.join(dyn_root,cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["postload",cfg["post"]])
@@ -151,8 +189,9 @@ module Dyndoc
     	end
     	code += "\n" + dyn_post_code if dyn_post_code
       ## TO TEST!!!
-      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ")[#>]" +code
-      code = "[#rb<]page = " + page.inspect + "[#>]" +code if page
+      ##Dyndoc.warn :cfg,cfg
+      ##Dyndoc.warn :page,page
+      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
 
       ## add path for user
@@ -166,19 +205,15 @@ module Dyndoc
 
       dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
 
-      cli=Dyndoc::InteractiveClient.new(code,dyn_file,addr,dyndoc_start)
-
-    	if dyn_layout
-    	 	cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
-    	end
-
-    	if html_file and Dir.exist? File.dirname(html_file)
-    		File.open(html_file,"w") do |f|
-    			f << cli.content
-    		end
-    	else
-    		puts cli.content
-    	end
+      unless opts[:doc_tag] == "__ALL_DOC_TAG__"
+        Dyndoc.process_html_file_from_dyn_file(code,html_file,dyn_file,dyn_layout,addr,dyndoc_start)
+      else
+        html_files.keys[1..-1].each do |doc_tag|
+          html_file=File.join(html_root,["users",opts[:user]] || [],cfg_files[:urls][doc_tag])
+          p [:html_multi,doc_tag,html_file]
+          Dyndoc.process_html_file_from_dyn_file(code.gsub(/__ALL_DOC_TAG__/,doc_tag),html_file,dyn_file,dyn_layout,addr,dyndoc_start)
+        end
+      end
     end
   end
 
