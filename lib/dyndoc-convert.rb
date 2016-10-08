@@ -23,7 +23,7 @@ module Dyndoc
     end
   end
 
-  ## does notwork when called twice!!!! (ex: jekyll-dyndoc in mode dyndoc)
+  ## does not work when called twice!!!! (ex: jekyll-dyndoc in mode dyndoc)
   def Dyndoc.convert(input,config={})
     unless @@dyndoc_tmpl_mngr
       Dyndoc.cfg_dyn['dyndoc_session']=:interactive
@@ -61,7 +61,7 @@ module Dyndoc
 
     return unless opts[:dyn_root]
 
-    dyn_libs,dyn_tags=nil,nil
+    dyn_libs,dyn_tags,dyn_layout,dyn_pre_code,dyn_post_code=nil,nil,nil,nil,nil
 
     ## requirement: dyn_file is provided relatively to the opts[:dyn_root] (for security reason too)
 
@@ -90,8 +90,15 @@ module Dyndoc
     if i=(dyn_file =~ /\_?(?:html)?\.dyn$/)
 
       cfg={}
+
       ## find the previous config.yml in the tree folder
       ## TODO: read all previous config.yml and merge them from root to current
+      ## The merge could be also to join the content when the key is the same.
+      ## Ex: semantic-ui (1st config.yml): css_message
+      ##    semantic-ui (2nd config.yml): css_icon
+      ##  becomes: semantic-ui: css_message, css_icon
+      ## NEEDS TO DECLARE the fields that behave like this in some other config file (keys.yml)
+
       cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join(opts[:dyn_root],pa,"config.yml")}.reverse
       cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
       cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
@@ -133,13 +140,16 @@ module Dyndoc
       dyn_root= cfg["dyn_root"] || opts[:dyn_root] || File.expand_path("..",dyn_file)
       html_root= cfg["html_root"] || opts[:html_root] || File.expand_path("..",dyn_file)
 
+      cfg["layout"] = cfg["pre"] = cfg["post"] = cfg["model"] if cfg["model"]
+
       if cfg["layout"]
         if cfg["layout"][0] == "~" #user mode
           cfg_tmp=File.join(opts[:dyn_root],'users',cfg["layout"][1] == "/" ? File.join(opts[:user],cfg["layout"][1..-1]) : cfg["layout"][1..-1])
         else
           cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
         end
-        Dyndoc.warn :layout,cfg_tmp
+        cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
+        ##Dyndoc.warn :layout,cfg_tmp
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
       if cfg["pre"]
@@ -149,7 +159,8 @@ module Dyndoc
           #cfg_tmp=File.join(dyn_root,cfg["pre"])
           cfg_tmp=File.join(dyn_root,cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["preload",cfg["pre"]])
         end
-        dyn_pre_code=File.read(cfg_tmp) unless dyn_pre_code and File.exist? cfg_tmp
+        cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
+        dyn_pre_code=File.read(cfg_tmp) if !dyn_pre_code and File.exist? cfg_tmp
       end
 
       if cfg["post"]
@@ -159,7 +170,8 @@ module Dyndoc
           #cfg_tmp=File.join(dyn_root,cfg["post"])
           cfg_tmp=File.join(dyn_root,cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["postload",cfg["post"]])
         end
-        dyn_post_code=File.read(cfg_tmp) unless dyn_post_code and File.exist? cfg_tmp
+        cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
+        dyn_post_code=File.read(cfg_tmp) if !dyn_post_code and File.exist? cfg_tmp
       end
 
       ## deal with html_file
