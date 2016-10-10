@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.8.5'
+pkg_version='0.9.0'
 
 pkg_files=FileList[
     'bin/*',
@@ -36,7 +36,7 @@ spec = Gem::Specification.new do |s|
     s.add_runtime_dependency "redcarpet",">=3.3.4"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-init'
+    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-init' << 'dyn-scan'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.

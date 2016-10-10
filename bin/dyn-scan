@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+args=ARGV
+args=["-h"] if args.empty?
+
+input,mode,master=false,:process,true
+
+require 'optparse'
+
+$VERBOSE = nil
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: dyn-scan [options]"
+
+  opts.on( '-p', '--pretty', 'pretty method' ) do
+    mode=:pretty
+  end
+
+  opts.on( '-i', '--input', 'input line' ) do
+    input=true
+  end
+
+  opts.on( '-x', '--extract', 'extract method' ) do
+    mode=:extract
+  end
+
+end.parse!(args)
+
+
+require 'dyndoc/base/scanner'
+scan=Dyndoc::DevTagScanner.new(:dtag)
+b=(input ? args[0] : File.read(args[0]) )
+b="{#document][#main]"+b+"[#}" if master
+scan.tokenize(b)
+case mode
+when :extract
+  p scan.extract
+when :pretty
+  scan.pretty_print(scan.parse_text(scan.extract))
+when :process
+  p scan.process(b)
+end
