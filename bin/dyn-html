@@ -120,7 +120,7 @@ doc_tag="" unless doc_tag
 doc_tag="__ALL_DOC_TAG__" if doc_tag.downcase == "all"
 
 ## Detect docs_tags_info
-dyn_file=File.join(["","users",current_email],dyn_file[1..-1]) unless dyn_file[0,1]=="/"
+dyn_file=File.join(["","users",current_email],dyn_file) unless dyn_file[0,1]=="/"
 filename=File.join(edit_root,dyn_file)
 doc_tags_info=Edit.get_doc_tags_info(File.read(filename))
 
