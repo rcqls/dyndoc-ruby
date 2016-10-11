@@ -5,7 +5,7 @@ require 'dyndoc-convert'
 root = File.join(ENV["HOME"],"RCqls","RodaServer")
 edit_root = File.join(root ,"edit")
 pages_root = File.join(root ,"public","pages")
-current_email="rdrouilh@gmail.com"
+current_email="rdrouilh@gmail.com" #default email user can be overriden by -u option
 
 args=ARGV
 args=["-h"] if args.empty?
@@ -17,12 +17,12 @@ $VERBOSE = nil
 ## Examples:
 ## 1) global mode:
 ##    dyn-html /dev/R/test.dyn
-## 2) user mode: % instead of ~ since ~ is interpreted in bash mode!
-##    dyn-html -u remy.drouilhet@upmf-grenoble.fr %/cfies2017/index.dyn:index
-##    dyn-html -u remy.drouilhet@upmf-grenoble.fr %/cfies2017/index.dyn:all
+## 2) user mode: relative path used instead of ~ since ~ is interpreted in bash mode!
+##    dyn-html -u remy.drouilhet@upmf-grenoble.fr cfies2017/index.dyn:index
+##    dyn-html -u remy.drouilhet@upmf-grenoble.fr cfies2017/index.dyn:all
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: dyn-html [-u email_user] [%]/<relative_path>/<file>.dyn "
+  opts.banner = "Usage: dyn-html [-u email_user] [/]<relative_path>/<file>.dyn "
 
   opts.on( '-u', '--user EMAIL', 'user email' ) do |email|
     current_email=email
@@ -120,7 +120,7 @@ doc_tag="" unless doc_tag
 doc_tag="__ALL_DOC_TAG__" if doc_tag.downcase == "all"
 
 ## Detect docs_tags_info
-dyn_file=File.join(["","users",current_email],dyn_file[1..-1]) if dyn_file[0,1]=="%"
+dyn_file=File.join(["","users",current_email],dyn_file[1..-1]) unless dyn_file[0,1]=="/"
 filename=File.join(edit_root,dyn_file)
 doc_tags_info=Edit.get_doc_tags_info(File.read(filename))
 
@@ -133,7 +133,6 @@ if dyn_file and (dyn_file=~/(.*)(?:\.dyn|_html.dyn)$/)
 # Ex for opts:
 # rdrouilh : [:dyn_opts, {:dyn_root=>"/Users/remy/RCqls/RodaServer/edit", :html_root=>"/Users/remy/RCqls/RodaServer/public/pages", :user=>"rdrouilh@gmail.com", :doc_tag=>"bio", :html_files=>{""=>"/dev/R/test.html", "ssd"=>"/dev/R/ssd.html", "bio"=>"/dev/R/bio.html", "tmp"=>"/dev/R/tmp.html", "cours"=>"/dev/R/cours.html"}}]
 # remy.drouilhet : [:dyn_opts, {:dyn_root=>"/Users/remy/RCqls/RodaServer/edit", :html_root=>"/Users/remy/RCqls/RodaServer/public/pages", :user=>"remy.drouilhet@upmf-grenoble.fr", :doc_tag=>"index", :html_files=>{""=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/index.html", "index"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/index.html", "dates"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/dates.html", "sc"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/sc.html", "orga"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/orga.html"}}]
-
   opts = {
     dyn_root: edit_root,
     html_root: pages_root,
@@ -141,7 +140,8 @@ if dyn_file and (dyn_file=~/(.*)(?:\.dyn|_html.dyn)$/)
     doc_tag: doc_tag,
     html_files: html_files
   }
-  p opts
+##p opts
 
+  ## dyn_file[1..-1] to have a relative path...
   Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
 end
