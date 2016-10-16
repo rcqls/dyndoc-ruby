@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 ## First version of dyn-lint
+## TODO:
+## * detect the position of the error
+## * warning when suspecting block ending by ] by accident
+
 txt=File.read(ARGV[0])
 selected_tags=txt.scan(/(?:\{[\#\@](?:[\w\:\|-]*[<>]?[=?!><]?(?:\.\w*)?)\]|\[[\#\@](?:[\w\:\|-]*[<>]?[=?!><]?)\})/).each_with_index.map{|e,i| [i+1,e] }
 
@@ -18,6 +22,10 @@ module Dyndoc
         end
       end
       return tags
+    end
+
+    def Linter.guess_bad_tags(tags)
+      
     end
   end
 end
