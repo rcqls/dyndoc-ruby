@@ -10,26 +10,64 @@ repo_dir = File.join(lib_dir,".repository")
 
 old_pwd = Dir.pwd
 
-cmd = ARGV[0].to_sym
+cmd = ARGV.empty? ? :help : ARGV[0].to_sym
 case cmd
+when :help, :"--help", :"-h"
+doc=<<ENDHELP
+Install a repository
+====================
+dpm install <user>/<repo>
+dpm install https://github.com/<user>/<repo> (equivalent to previous one)
+dpm install <git-url>/<user>/<repo> (non necessarily on github)
 
-# dyndoc-package install rcqls/dyndoc-share
+Good to know: repository identifier is in any previous case <user>/<repo>
+
+Update a repository
+===================
+# dpm update <user>/<repo>
+
+Link library
+============
+dpm link <user>/<repo>/<subdir>/<libname> (default link to <libname>)
+dpm link <user>/<repo>/<subdir>/<libname> <libname>
+dpm link <real local path to expand>
+
+Unlink library
+==============
+dpm unlink <libname>
+
+This message
+============
+
+dpm help
+
+List of repository
+==================
+dpm repo
+
+List of libraries
+=================
+dpm ls
+ENDHELP
+puts doc
+
 when :install  #default is github from now!
-owner,package=File.split(ARGV[1])
-package = package[0...-4] if package =~ /\.git$/
-package_dir = File.join(repo_dir,owner)
-FileUtils.mkdir_p package_dir
-FileUtils.cd package_dir
-`git clone https://github.com/#{owner}/#{package}.git`
+	location,url=ARGV[1],'https://github.com'
+	if (tmp=location.split("/")).length==5 and tmp[1].empty?
+		url=tmp[0...3].join("/")
+		location=tmp[3..-1].join("/")
+	end
+	owner,package=File.split(location)
+	package = package[0...-4] if package =~ /\.git$/
+	package_dir = File.join(repo_dir,owner)
+	FileUtils.mkdir_p package_dir
+	FileUtils.cd package_dir
+	`git clone #{url}/#{owner}/#{package}.git`
 
-# dyndoc-package update rcqls/dyndoc-share
 when :update
 FileUtils.cd File.join(repo_dir,ARGV[1])
 `git pull`
 
-# dyndoc-package link rcqls/dyndoc-share/library/RCqls (default to RCqls)
-# dyndoc-package link rcqls/dyndoc-share/library/RCqls RCqls
-# dyndoc-package link <real local path to expand>
 when :link
 path = File.expand_path(ARGV[1])
 unless (local = (File.directory? path) )
@@ -45,7 +83,7 @@ if RUBY_PLATFORM =~ /(?:msys|mingw)/
 else
 	FileUtils.ln_sf source,target
 end
-# dyndoc-package unlink RCqls
+
 when :unlink
 package = ARGV[1]
 if RUBY_PLATFORM =~ /(?:msys|mingw)/
