@@ -1,12 +1,20 @@
 #!/usr/bin/env ruby
 require 'dyndoc-convert'
 require 'dyndoc-edit'
+require 'dyndoc/init/home'
+dyndoc_home = Dyndoc.home
+#p Dyndoc.home
+
+cfg_yml = File.join(dyndoc_home,"etc","dyn-html.yml")
+
+cfg=YAML::load_file(cfg_yml) if File.exist? cfg_yml
+
 
 ## To put inside yaml config file!
-root = File.join(ENV["HOME"],"RCqls","RodaServer")
+root = cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
 edit_root = File.join(root ,"edit")
 pages_root = File.join(root ,"public","pages")
-current_email = "rdrouilh@gmail.com" #default email user can be overriden by -u option
+current_email = cfg["email"] || "rdrouilh@gmail.com" #default email user can be overriden by -u option
 
 args=ARGV
 args=["-h"] if args.empty?
