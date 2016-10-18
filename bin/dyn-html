@@ -33,7 +33,7 @@ $VERBOSE = nil
 options={watching: nil, refresh: nil, first: true}
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: dyn-html [-u email_user] [/]<relative_path>/<file>.dyn "
+  opts.banner = "Usage: dyn-html [-u email_user] [-w] [-r <url-to-refresh-when-watched>] [/]<relative_path>/<file>.dyn "
 
   opts.on( '-u', '--user EMAIL', 'user email' ) do |email|
     current_email=email
