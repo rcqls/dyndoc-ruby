@@ -7,6 +7,8 @@ dyndoc_home = Dyndoc.home
 
 cfg_yml = File.join(dyndoc_home,"etc","dyn-html.yml")
 
+cfg={}
+
 cfg=YAML::load_file(cfg_yml) if File.exist? cfg_yml
 
 
@@ -27,10 +29,11 @@ $VERBOSE = nil
 ## 1) global mode:
 ##    dyn-html /dev/R/test.dyn
 ## 2) user mode: relative path used instead of ~ since ~ is interpreted in bash mode!
+##    dyn-html cfies2017/index.dyn:index # -u <default_user_email>
 ##    dyn-html -u remy.drouilhet@upmf-grenoble.fr cfies2017/index.dyn:index
 ##    dyn-html -u remy.drouilhet@upmf-grenoble.fr cfies2017/index.dyn:all
 
-options={watching: nil, refresh: nil, first: true}
+options={watching: nil, refresh: :auto, first: true}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: dyn-html [-u email_user] [-w] [-r <url-to-refresh-when-watched>] [/]<relative_path>/<file>.dyn"
@@ -43,18 +46,17 @@ OptionParser.new do |opts|
     options[:watching]=true
   end
 
-  opts.on( '-r', '--refresh HTML', 'refresh page' ) do |html|
+  opts.on( '-r', '--refresh HTML', 'page to refresh (only for MacOsX)' ) do |html|
     options[:refresh]=html
+  end
+
+  opts.on('--no-refresh', 'no refresh page' ) do
+    options[:refresh]=nil
   end
 
 end.parse!(args)
 
-
-## THIS IS A COPY FROM edit.rb
-## TODO: TO PLACE IN SOME COMMON LIBRARY!
-
 ## Mandatory input
-p args
 dyn_file,doc_tag=args[0].split(":")
 doc_tag="" unless doc_tag
 doc_tag="__ALL_DOC_TAG__" if doc_tag.downcase == "all"
@@ -70,6 +72,15 @@ if dyn_file and (dyn_file=~/(.*)(?:\.dyn|_html.dyn)$/)
   ##p [:html_files,html_files]
   html_file=html_files[doc_tag] || html_files[""]
 
+  if options[:refresh] and options[:refresh] == :auto
+    options[:refresh] = File.join(cfg["localhost_url"] || "http://localhost:9292",File.dirname(dyn_file),File.basename(dyn_file,".*"))
+  end
+
+  output=""
+  output << "Watching "+dyn_file if options[:watching]
+  output << (options[:watching] ? " and refreshing " : "Refreshing ")+options[:refresh] if options[:refresh]
+  puts output unless output.empty?
+
 # Ex for opts:
 # rdrouilh : [:dyn_opts, {:dyn_root=>"/Users/remy/RCqls/RodaServer/edit", :html_root=>"/Users/remy/RCqls/RodaServer/public/pages", :user=>"rdrouilh@gmail.com", :doc_tag=>"bio", :html_files=>{""=>"/dev/R/test.html", "ssd"=>"/dev/R/ssd.html", "bio"=>"/dev/R/bio.html", "tmp"=>"/dev/R/tmp.html", "cours"=>"/dev/R/cours.html"}}]
 # remy.drouilhet : [:dyn_opts, {:dyn_root=>"/Users/remy/RCqls/RodaServer/edit", :html_root=>"/Users/remy/RCqls/RodaServer/public/pages", :user=>"remy.drouilhet@upmf-grenoble.fr", :doc_tag=>"index", :html_files=>{""=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/index.html", "index"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/index.html", "dates"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/dates.html", "sc"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/sc.html", "orga"=>"/users/remy.drouilhet@upmf-grenoble.fr/cfies2017/orga.html"}}]
@@ -83,7 +94,7 @@ if dyn_file and (dyn_file=~/(.*)(?:\.dyn|_html.dyn)$/)
 ##p opts
   file_to_process=File.join(opts[:dyn_root],dyn_file)
   cmd_to_open=nil
-  if options[:refresh]
+  if options[:refresh] and RUBY_PLATFORM =~ /darwin/
     cmd_to_open='tell application "Safari" to set URL of current tab of front window to "'+options[:refresh]+'"'
     cmd_to_refresh='tell application "System Events"' + "\n" + 'tell process "Safari"' + "\n" + 'keystroke "r" using {command down}' + "\n" + 'delay 60' + "\n" + 'end tell' + "\n" + 'end tell'
   end
@@ -102,17 +113,19 @@ if dyn_file and (dyn_file=~/(.*)(?:\.dyn|_html.dyn)$/)
         if Dyndoc::Linter.check_file(file_to_process).empty?
           Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
           puts dyn_file[1..-1]+" processed!"
-          if options[:first]
-            `osascript -e '#{cmd_to_open}'`
-            options[:first]=nil
-          else
-            %x{osascript<<-ENDREFRESH
-              tell app "Safari" to activate
-              tell application "System Events"
-                keystroke "r" using {command down}
-              end tell
-              ENDREFRESH
-            }
+          if options[:refresh] and RUBY_PLATFORM =~ /darwin/
+            if options[:first]
+              `osascript -e '#{cmd_to_open}'`
+              options[:first]=nil
+            else
+%x{osascript<<ENDREFRESH
+tell app "Safari" to activate
+tell application "System Events"
+  keystroke "r" using {command down}
+end tell
+ENDREFRESH
+}
+            end
           end
         else
           puts dyn_file[1..-1]+" not well-formed!"
