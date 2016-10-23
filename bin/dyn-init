@@ -5,26 +5,39 @@ require 'dyndoc/init/home'
 arg=ARGV[0]
 arg="path" if !arg or arg.empty?
 
+share_path=File.expand_path("../../share", __FILE__)
+
 case arg
 when "help"
 	puts <<-DOC
 Usage:
-	## create ~/dyndoc folder and initialize some sharing
-	dyn-init path
-	## add room folder
-	dyn-init sync	<room_id>:<room_folder_full_path>@<room_remote_wordir>
+	## get dyndoc home (i.e, ~/dyndoc or read config file ~/.dyndoc_home)
+	dyn-init home
+	## set dyndoc home (update ~/.dyndoc_home)
+	dyn-init home <other dyndoc home path>
+	dyn-init home <other dyndoc home path> --init #with init path
+	## create dyndoc home folder and initialize some sharing
+	dyn-init [path]
+	dyn-init --reset #reset dyndoc home folder
+	## without creating dyndoc home folder, initialize some sharing
+	dyn-init install [all|etc|demo|html-srv|dyndoc.yml]
 DOC
+## REMOVED from DOC above since maybe it is OBSOLETE
+#### ## add room folder
+#### dyn-init sync	<room_id>:<room_folder_full_path>@<room_remote_wordir>
 when "home"
-	if ARGV[1]
+	if ARGV.length == 2 or (ARGV.length==3 and ARGV[2]=="--init")
 		Dyndoc.home=ARGV[1]
+		FileUtils.cp_r File.join(share_path,"."),Dyndoc.home if ARGV[2]=="--init"
 	end
-	puts "dyndoc home set to #{Dyndoc.home}"
+	puts "dyndoc home set to #{Dyndoc.home}"+(ARGV.length==3 and ARGV[2]=="--init" ? "with paths initialization" : "" )
 when "path","--reset"
-	share_path=File.expand_path("../../share", __FILE__)
 	dyndoc_path=Dyndoc.home
 	if arg=="--reset"
 		puts "Do you really want to reset the dyndoc home (YES|no)?"
-		exit unless gets.chomp=="YES"
+		if gets.chomp=="YES" and File.directory? dyndoc_path
+			FileUtils.rm_rf dyndoc_path
+		end
 	end
 	unless File.exist? dyndoc_path
 		FileUtils.mkdir_p dyndoc_path
@@ -32,7 +45,7 @@ when "path","--reset"
 		puts "Your dyndoc home now contains at least the default settings!"
 	else
 		puts "Warning: #{dyndoc_path} folder already exists!"
-		puts "dyn-init install [all|etc|demo|html-srv|dyndoc.yml]"
+		puts "Try: dyn-init install [all|etc|demo|html-srv|dyndoc.yml]"
 	end
 when "install"
 	case ARGV[1].strip
