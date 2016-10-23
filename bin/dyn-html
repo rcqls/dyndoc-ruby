@@ -14,8 +14,9 @@ cfg=YAML::load_file(cfg_yml) if File.exist? cfg_yml
 
 ## To put inside yaml config file!
 root = cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
-edit_root = File.join(root ,"edit")
-pages_root = File.join(root ,"public","pages")
+edit_root = cfg["edit_root"] || File.join(root ,"edit")
+public_root = cfg["public_root"] || File.join(root ,"public")
+pages_root = File.join(public_root ,"pages")
 current_email = cfg["email"] || "rdrouilh@gmail.com" #default email user can be overriden by -u option
 
 args=ARGV

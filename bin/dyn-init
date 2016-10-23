@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'fileutils'
+require 'dyndoc/init/home'
 
 arg=ARGV[0]
 arg="path" if !arg or arg.empty?
@@ -13,16 +14,34 @@ Usage:
 	## add room folder
 	dyn-init sync	<room_id>:<room_folder_full_path>@<room_remote_wordir>
 DOC
-when "path"
+when "home"
+	if ARGV[1]
+		Dyndoc.home=ARGV[1]
+	end
+	puts "dyndoc home set to #{Dyndoc.home}"
+when "path","--reset"
 	share_path=File.expand_path("../../share", __FILE__)
-	dyndoc_path=File.join(ENV["HOME"],"dyndoc")
+	dyndoc_path=Dyndoc.home
+	if arg=="--reset"
+		puts "Do you really want to reset the dyndoc home (YES|no)?"
+		exit unless gets.chomp=="YES"
+	end
 	unless File.exist? dyndoc_path
 		FileUtils.mkdir_p dyndoc_path
 		FileUtils.cp_r File.join(share_path,"."),dyndoc_path
+		puts "Your dyndoc home now contains at least the default settings!"
 	else
 		puts "Warning: #{dyndoc_path} folder already exists!"
+		puts "dyn-init install [all|etc|demo|html-srv|dyndoc.yml]"
 	end
-when "sync"
+when "install"
+	case ARGV[1].strip
+	when "all"
+		FileUtils.cp_r File.join(share_path,"."),Dyndoc.home
+	when "etc","demo","html-srv","dyndoc.yml"
+		FileUtils.cp_r File.join(share_path,ARGV[1].strip),Dyndoc.home
+	end
+when "sync" ## MAYBE OBSOLETE!
 	require 'fileutils'
 	FileUtils.mkdir_p (etc=File.join(ENV["HOME"],"dyndoc","etc"))
 	room_sync=File.join(etc,".room_sync")

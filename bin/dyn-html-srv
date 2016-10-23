@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+require 'dyndoc/init/home'
+dyndoc_home = Dyndoc.home
+## read config file
+cfg_yml = File.join(dyndoc_home,"etc","dyn-html.yml")
+cfg={}
+cfg.merge! YAML::load_file(cfg_yml) if File.exist? cfg_yml
+
+require 'thin'
+arg=["-R",File.join(dyndoc_home,"etc","html-srv","dyn-html-srv.ru")]
+if ARGV.include? "stop"
+  arg=["stop"]
+else
+  if cfg["html-srv-port"]
+    arg += ["-p",cfg["html-srv-port"].to_s]
+  elsif (i=ARGV.index("-p"))
+    arg += ["-p",ARGV[i+1]]
+  end
+  arg += ["-d","start"]
+end
+Thin::Runner.new(arg).run!
+
+## default is to start dyn-srv except if stop or --no-dyn-srv option
+unless (ARGV.include? "stop") or (ARGV.include? '--no-dyn-srv')
+  require "dyndoc/srv/interactive-server"
+  Dyndoc::InteractiveServer.new.run
+end
