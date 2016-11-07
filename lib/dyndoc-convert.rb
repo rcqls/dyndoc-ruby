@@ -56,6 +56,12 @@ module Dyndoc
   end
 
   ## TODO: a config.yml file for the site
+  ## NOTE: Mode multipage works as follows:
+  ## 1) "only:" can have a list of tags from "docs:" which is put inside opts[:doc_tag]
+  ## 2) In order to process files properly for this list of tags inside opts[:doc_tag]
+  ##    cfg[:tag] and dyn_tags are replace with "__ALL_DOC_TAG__" instead of opts[:doc_tag]
+  ##    Since are __ALL_DOC_TAG__ is replaced by the current tag for each file to be processed, everything goes well!
+
   def Dyndoc.cli_convert_from_file(dyn_file,html_file,opts={}) #ex: opts={dyn_root: , html_root:, user: , doc_tag: }
     addr="127.0.0.1"
 
@@ -80,7 +86,7 @@ module Dyndoc
       basename: File.basename(dyn_file,".*"),
       long_url: html_file,
       url: File.basename(html_file,".*"),
-      tag: opts[:doc_tag],
+      tag:  opts[:doc_tag],
       urls: html_files
     }
 
@@ -186,6 +192,7 @@ module Dyndoc
 
       ## mode multi-documents
       docs_tags=[]
+      ## since opts[:doc_tag] can have more than one tag it is replaced with __ALL_DOC_TAG__ that is replaced before processing with the proper tag
       docs_tags << opts[:doc_tag] if opts[:doc_tag]
       ## complete docs_tags with cfg["tags"]
       docs_tags += (cfg["tags"]||"").split(",").map{|e| e.strip}
@@ -201,7 +208,8 @@ module Dyndoc
     	end
     	code += "\n" + dyn_post_code if dyn_post_code
       ## TO TEST!!!
-      ##Dyndoc.warn :cfg,cfg
+      ##
+      Dyndoc.warn :cfg,cfg
       ##Dyndoc.warn :page,page
       code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
@@ -220,9 +228,9 @@ module Dyndoc
       unless opts[:doc_tag] == "__ALL_DOC_TAG__"
         Dyndoc.process_html_file_from_dyn_file(code,html_file,dyn_file,dyn_layout,addr,dyndoc_start)
       else
-        html_files.keys[1..-1].each do |doc_tag|
+        (opts[:current_tags] || html_files.keys[1..-1]).each do |doc_tag|
           html_file=File.join(html_root,["users",opts[:user]] || [],cfg_files[:urls][doc_tag])
-          p [:html_multi,doc_tag,html_file]
+          p [:html_multi,doc_tag,html_file] #,code.gsub(/__ALL_DOC_TAG__/,doc_tag)]
           Dyndoc.process_html_file_from_dyn_file(code.gsub(/__ALL_DOC_TAG__/,doc_tag),html_file,dyn_file,dyn_layout,addr,dyndoc_start)
         end
       end

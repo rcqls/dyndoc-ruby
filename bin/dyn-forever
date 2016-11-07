@@ -1,16 +1,166 @@
 #!/usr/bin/ruby
 
-require 'forever'
-require "dyndoc/srv/interactive-server"
+## THIS IS AN ADAPTATION OF FOREVERB (https://github.com/DAddYE/foreverb) TO DYN
+require 'rubygems' unless defined?(Gem)
+require 'thor'
+require 'yaml'
+require 'fileutils'
+require 'dyndoc/init/home'
 
-Forever.run do
-  on_error do |e|
+DYN_FOREVER_PATH = ENV['DYN_FOREVER_PATH'] ||= File.expand_path(Dyndoc.home,"etc","dyn-foreverb.yml") unless defined?(DYN_FOREVER_PATH)
 
-      puts  "%s\n  %s\n" % [e.message, e.backtrace.join("\n  ")]
+class CLI < Thor
 
+  desc "list", "List Forever running daemons"
+  method_option :monitor, :type => :boolean, :aliases => "-m", :default => false, :desc => "Show memory and cpu usage with ps"
+  def list
+    say "Your config is empty, so no deamons was found.", :red if config.empty? && !options.monitor
+
+    if options.monitor
+      print_table([%w(PID RSS CPU CMD), *ps])
+    else
+      config.each do |conf|
+        status = begin
+          pid = File.read(conf[:pid]).to_i
+          Process.kill(0, pid)
+          "RUNNING"
+        rescue Errno::ESRCH, Errno::ENOENT
+          "NOT RUNNING"
+        rescue Errno::EPERM
+          "RUNNING"
+        end
+        say_status status, conf[:file], status =~ /^RUNNING/ ? :green : :red
+      end
+      say "Reading config from: #{DYN_FOREVER_PATH}", :blue
+    end
   end
-  before :all do
-    Dyndoc::InteractiveServer.new.run
+
+  desc "stop [DAEMON] [--all] [--yes]", "Stop one or more matching daemons"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to kill daemon"
+  def stop(daemon=nil)
+    find(daemon, :multiple => options.all).each do |conf|
+      stop_daemon(conf) if options.yes || yes?("Do you want really stop \e[1m#{conf[:file]}\e[0m?")
+    end
   end
 
+  desc "kill [DAEMON] [--all] [--yes]", "Kill one or more matching daemons"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to kill daemon"
+  def kill(daemon=nil)
+    find(daemon, :multiple => options.all).each do |conf|
+      if options.yes || yes?("Do you want really kill \e[1m#{conf[:file]}\e[0m?")
+        say_status "KILLING", conf[:file]
+        begin
+          pid = File.read(conf[:pid]).to_i
+          Process.kill(:INT, pid)
+        rescue Exception => e
+          say_status "ERROR", e.message, :red
+        end
+      end
+    end
+  end
+
+  desc "start [DAEMON] [--all] [--yes]", "Start one or more matching daemons"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to start the daemon"
+  def start(daemon=nil)
+    find(daemon, :multiple => options.all).each do |conf|
+      system(conf[:file]) if options.yes || yes?("Do you want really start \e[1m#{conf[:file]}\e[0m?")
+    end
+  end
+
+  desc "restart [DAEMON] [--all] [--yes]", "Restart one or more matching daemons"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to start the daemon"
+  def restart(daemon=nil)
+    invoke :start
+  end
+
+  desc "tail [DAEMON]", "Tail log of first matching daemon"
+  method_option :lines, :aliases => "-n", :default => 150, :desc => "How many lines show?"
+  def tail(daemon)
+    found = find(daemon)[0]
+    return unless found
+    system "tail -f -n #{options.lines} #{found[:log]}"
+  end
+
+  desc "update [DAEMON] [--all] [--yes]", "Update config from one or more matching daemons"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to start the daemon"
+  def update(daemon=nil)
+    match = find(daemon, :multiple => options.all)
+    return if match.empty?
+    FileUtils.rm_rf(DYN_FOREVER_PATH)
+    match.each do |conf|
+      system(conf[:file], 'update') if options.yes || yes?("Do you want really update config from \e[1m#{conf[:file]}\e[0m?")
+    end
+  end
+
+  desc "remove [DAEMON] [--all]", "Remove the config of a daemon from foreverb"
+  method_option :all, :type => :boolean, :aliases => "-a", :desc => "All matching daemons"
+  method_option :yes, :type => :boolean, :aliases => "-y", :desc => "Don't ask permission to remove the daemon"
+  def remove(daemon=nil)
+    say "You must provide a daemon name or provide --all option", :red and return if daemon.nil? && !options.all
+    new_config = config.delete_if do |conf|
+      if conf[:file] =~ /#{daemon}/
+        if options.yes || yes?("Do you really want to remove the daemon \e[1m#{conf[:file]}\e[0m?")
+          stop_daemon(conf)
+          say "\e[1m#{conf[:file]}\e[0m removed."
+          true
+        else
+          say "\e[1m#{conf[:file]}\e[0m remains on the list."
+          false
+        end
+      else
+        false
+      end
+    end
+    write_config! new_config
+  end
+
+  private
+    def find(daemon, options={})
+      multiple = options.delete(:multiple)
+      say "You must provide a daemon name or provide --all option", :red and return [] if daemon.nil? && !multiple
+      found = multiple ? config : config.find_all { |conf| conf[:file] =~ /#{daemon}/ }
+      say "Daemon(s) matching '#{daemon}' not found", :red if found.empty? && !daemon.nil?
+      say "Daemons not found", :red if found.empty? && nil && daemon.nil?
+      found
+    end
+
+    def find_all(daemon)
+      find(daemon, :multiple => true)
+    end
+
+    def config
+      File.exist?(DYN_FOREVER_PATH) ? YAML.load_file(DYN_FOREVER_PATH) : []
+    end
+
+    def ps
+      # This is horrible command, but how we can keep compatiblity between darwin and *unix ?
+      result = `ps axo pid,rss,pcpu,command | grep -vE "^USER|grep" | grep Forever: | awk '{print $1"\t"$2"\t"$3"\t"$4" "$5" "$6}'`
+      result = result.chomp.split("\n").map { |line| line.split("\t") }
+      result = result.sort { |a,b| b[1].to_i <=> a[1].to_i }
+      result.each { |column| column[1] = "%d Mb" % [column[1].to_i / 1024] }
+      result.each { |column| column[2] = "%s %"  % [column[2]] }
+      result
+    end
+
+    def write_config!(new_config)
+      File.open(DYN_FOREVER_PATH, "w") { |f| f.write new_config.to_yaml }
+    end
+
+    def stop_daemon(conf)
+      say_status "STOPPING", conf[:file]
+      begin
+        pid = File.read(conf[:pid]).to_i
+        Process.kill(:INT, pid)
+      rescue Exception => e
+        say_status "ERROR", e.message, :red
+      end
+    end
 end
+
+ARGV << "-h" if ARGV.empty?
+CLI.start(ARGV)

@@ -1,0 +1,122 @@
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:22:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:22:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:22:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:23:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:23:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:23:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `read': No such file or directory - /Users/remy/dyndoc-devel/etc/html-srv/dyn-html-srv.ru (Errno::ENOENT)
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/rack/adapter/loader.rb:32:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:182:in `load_rackup_config'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/controllers/controller.rb:72:in `start'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:200:in `run_command'
+	from /Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/runner.rb:156:in `run!'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:23:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Thin web server (v1.6.4 codename Gob Bluth)
+Maximum connections set to 1024
+Listening on 0.0.0.0:3000, CTRL+C to stop
+[:ici]
+/Users/remy/.gem/ruby/2.0.0/gems/R4rb-1.0.0/lib/R4rb.3.3.bundle found
+/Users/remy/.gem/ruby/2.0.0/gems/R4rb-1.0.0/lib/R4rb.3.3.bundle loaded
+FIRST INIT OF R!!!! => true
+[1] "/Library/Frameworks/R.framework/Versions/3.3/Resources/library"
+Le chargement a nécessité le package : rb4R
+[:mathjax_register]
+InteractiveServer (re)initialized!
+Exiting!
+/Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/lib/dyndoc/srv/interactive-server.rb:51:in `initialize': Address already in use - bind(2) (Errno::EADDRINUSE)
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/lib/dyndoc/srv/interactive-server.rb:51:in `new'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/lib/dyndoc/srv/interactive-server.rb:51:in `init_server'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/lib/dyndoc/srv/interactive-server.rb:13:in `initialize'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:29:in `new'
+	from /Users/remy/.gem/ruby/2.0.0/gems/dyndoc-ruby-0.9.3/bin/dyn-html-srv:29:in `<top (required)>'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `load'
+	from /Users/remy/.gem/ruby/2.0.0/bin/dyn-html-srv:23:in `<main>'
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Thin web server (v1.6.4 codename Gob Bluth)
+Maximum connections set to 1024
+Listening on 0.0.0.0:3000, CTRL+C to stop
+"pages/carte/docs/dyndoc"
+"pages/carte/docs/dyndoc"
+"pages/carte/docs/dyndoc"
+Waiting for 6 connection(s) to finish, can take up to 30 sec, CTRL+C to stop now
+Writing PID to tmp/pids/thin.pid
+/Users/remy/.gem/ruby/2.0.0/gems/thin-1.6.4/lib/thin/backends/base.rb:103: warning: epoll is not supported on this platform
+Thin web server (v1.6.4 codename Gob Bluth)
+Maximum connections set to 1024
+Listening on 0.0.0.0:3000, CTRL+C to stop
+"pages/carte/docs/dyndoc"
+Waiting for 3 connection(s) to finish, can take up to 30 sec, CTRL+C to stop now

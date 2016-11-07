@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.9.3'
+pkg_version='0.9.6'
 
 pkg_files=FileList[
     'bin/*',
@@ -34,14 +34,15 @@ spec = Gem::Specification.new do |s|
     #end
     s.add_runtime_dependency "asciidoctor",">=1.5.3"
     s.add_runtime_dependency "redcarpet",">=3.3.4"
+    s.add_runtime_dependency "filewatcher",">=0.5.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-cli' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-html-srv' << 'dyn-init' << 'dyn-scan' << 'dyn-lint'
+    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.
   EOF
-    s.author = "CQLS"
+    s.author = "RCqls"
     s.email= "rdrouilh@gmail.com"
     s.homepage = "http://cqls.upmf-grenoble.fr"
     s.rubyforge_project = nil

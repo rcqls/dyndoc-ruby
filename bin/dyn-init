@@ -26,16 +26,23 @@ DOC
 #### ## add room folder
 #### dyn-init sync	<room_id>:<room_folder_full_path>@<room_remote_wordir>
 when "home"
-	if ARGV.length == 2 or (ARGV.length==3 and ARGV[2]=="--init")
+	if ARGV.length == 2 or (ARGV.length==3 and ["--init"].include? ARGV[2])
 		Dyndoc.home=ARGV[1]
+		FileUtils.mkdir_p Dyndoc.home
 		FileUtils.cp_r File.join(share_path,"."),Dyndoc.home if ARGV[2]=="--init"
 	end
-	puts "dyndoc home set to #{Dyndoc.home}"+(ARGV.length==3 and ARGV[2]=="--init" ? "with paths initialization" : "" )
+	unless File.directory? Dyndoc.home
+		puts "Folder #{Dyndoc.home} does not exist. \nDo you want to initialize (YES|no)?"
+		if STDIN.gets.chomp == "YES"
+			FileUtils.cp_r File.join(share_path,"."),Dyndoc.home
+		end
+	end
+	puts "dyndoc home set to #{Dyndoc.home}"+((ARGV.length==3 and ARGV[2]=="--init") ? " with paths initialization" : "" )
 when "path","--reset"
 	dyndoc_path=Dyndoc.home
 	if arg=="--reset"
 		puts "Do you really want to reset the dyndoc home (YES|no)?"
-		if gets.chomp=="YES" and File.directory? dyndoc_path
+		if STDIN.gets.chomp=="YES" and File.directory? dyndoc_path
 			FileUtils.rm_rf dyndoc_path
 		end
 	end

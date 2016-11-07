@@ -1,4 +1,25 @@
 module Dyndoc
+module FileWatcher ## USED by dyn-html
+
+  def FileWatcher.get_dyn_html_info(filename,dyn_file,user)
+    content=File.read(filename)
+    current_tags=[] #select current tags from doc_tags_info
+    doc_tags_info=Dyndoc::Edit.get_doc_tags_info(content,current_tags)
+    ##p [:fw_current_tags, current_tags]
+    doc_tag=(doc_tags_info.empty? ? "" : "__ALL_DOC_TAG__")
+    #p [:dyn_file,dyn_file,$1]
+    tmp=dyn_file.split("/")
+    user=tmp[2] if tmp[1]=="users"
+    ##p [:fw_user,user]
+    html_files=Dyndoc::Edit.html_files({doc_tags_info: doc_tags_info , dyn_file: dyn_file },user)
+
+    current_tags=html_files.keys[1..-1] if doc_tag=="__ALL_DOC_TAG__" and current_tags.empty?
+    current_doc_tag=(current_tags.empty? ? doc_tag : current_tags[0])
+    {html_files: html_files, doc_tag: doc_tag, user: user, current_doc_tag: current_doc_tag, current_tags: current_tags}
+  end
+
+end
+
 module Edit
 
   def Edit.docs_from_doc_tags_info(doc_tags_info)
@@ -13,15 +34,28 @@ module Edit
     return docs
   end
 
-  def Edit.get_doc_tags_info(content)
+  ## if selected_tag is an Array, allow to get current tags to proces
+  def Edit.get_doc_tags_info(content,current_tags=nil)
     doc_tags_info=""
     if content =~ /^\-{3}/
-        b=content.split(/^(\-{3,})/,-1)
-        if b[0].empty? and b.length>4
-          tmp=b[2].strip.split("\n").select{|e2| e2.strip =~/^docs\:/}
-          doc_tags_info=tmp[0] || ""
-          doc_tags_info=$1.strip if doc_tags_info =~ /^docs\:(.*)/
+      b=content.split(/^(\-{3,})/,-1)
+      if b[0].empty? and b.length>4
+        tmp=b[2].strip.split("\n").select{|e2| e2.strip =~/^docs\:/}
+        doc_tags_info=tmp[0] || ""
+        doc_tags_info=$1.strip if doc_tags_info =~ /^docs\:(.*)/
+
+        tmp=b[2].strip.split("\n").select{|e2| e2.strip =~/^only\:/}
+        current_tag_info=tmp[0] || ""
+        current_tag_info=$1.strip if current_tag_info =~ /^only\:(.*)/
+        p [:only_tag,current_tag_info]
+        ## added possibility select current tags only when current_tags is provided as an Array
+        if tmp[0] and current_tags and current_tags.is_a? Array
+          doc_tags=Edit.get_doc_tags(doc_tags_info)
+          current_tag_info.split(",").map{|e| e.strip}.each{|e| current_tags << e if doc_tags.include? e}
+          ##p [:only_current_tags,current_tags]
         end
+
+      end
     end
     return doc_tags_info
   end

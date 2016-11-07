@@ -1,6 +1,6 @@
 require "roda"
 require "pathname"
-
+##TODO: require 'rack-livereload'
 ## read config file
 require 'dyndoc/init/home'
 dyndoc_home = Dyndoc.home
@@ -8,13 +8,13 @@ cfg_yml = File.join(dyndoc_home,"etc","dyn-html.yml")
 cfg={}
 cfg.merge! YAML::load_file(cfg_yml) if File.exist? cfg_yml
 root = cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
-public_root = cfg["public_root"] || File.join(root ,"public")
-pages_root = File.join(public_root ,"pages")
-
+$public_root = cfg["public_root"] || File.join(root ,"public")
+##p [:public_root,$public_root]
 
 class App < Roda
   use Rack::Session::Cookie, :secret => (secret="Thanks like!")
-  plugin :static, ["/pages","/private","/tools"], :root => public_root
+  ##TODO: use Rack::LiveReload
+  plugin :static, ["/pages","/private","/tools"], :root => $public_root
   #opts[:root]=File.expand_path("..",__FILE__),
   #plugin :static, ["/pages","/private"]
   plugin :multi_route
@@ -24,7 +24,7 @@ class App < Roda
     :views => File.expand_path("../views",__FILE__),
     :escape=>true,
     :check_paths=>true,
-    :allowed_paths=>[File.expand_path("../views",__FILE__),public_root]
+    :allowed_paths=>[File.expand_path("../views",__FILE__),$public_root]
   # plugin :csrf,
   #   :skip => [
   #     "POST:/edit/dyn",
@@ -89,7 +89,6 @@ class App < Roda
   # end
 
 
-
   route do |r|
 
     # GET / request
@@ -127,7 +126,7 @@ class App < Roda
     r.on "get" do
       rsrc=r.remaining_path
       #p [:get,rsrc]
-      static_root=File.join(public_root,"tools")
+      static_root=File.join($public_root,"tools")
       if (rsrc=~/[^\.]*\.(?:css|js|rb|red|r|R|RData|rdata|rds|csv|txt|xls|xlsx|jpeg|jpg|png|gif)/)
         rsrc_files=Dir[File.join(static_root,"**",rsrc)]
         ##p rsrc_files
@@ -141,7 +140,7 @@ class App < Roda
 
     r.get do
       page=r.remaining_path
-      static_root=File.join(public_root,"pages")
+      static_root=File.join($public_root,"pages")
       ##p [:page,File.join(static_root,"**",page+".html")]
       pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|html|html|rb|red|r|jpeg|jpg|png|gif)/) ? page : page+".html"
       html_files=Dir[File.join(static_root,"**",pattern)]
@@ -151,7 +150,7 @@ class App < Roda
         if File.extname(html_file) == ".html"
           html_file=File.join(File.dirname(html_file),File.basename(html_file,".html"))
           p html_file
-          render html_file, :engine=>'html', :views=>File.expand_path("../public",__FILE__)
+          render html_file, :engine=>'html', :views=>$public_root
         else
           r.redirect html_file
         end

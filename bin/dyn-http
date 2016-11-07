@@ -1,9 +1,8 @@
-#!/usr/bin/ruby
-
-require "dyndoc/srv/interactive-server"
+#!/usr/bin/env ruby
+require 'dyndoc-html-servers'
 
 if ["--no-forever","--no-daemon"].include? ARGV[0]
-  Dyndoc::InteractiveServer.new.run
+  Dyndoc::HtmlServers.dyn_http_server
 else
   require 'daemons'
   require 'dyndoc/init/home'
@@ -11,8 +10,8 @@ else
 
   dir_pids=File.join(Dyndoc.home,"pids")
   FileUtils.mkdir_p dir_pids
-  Daemons.run_proc('dyn-srv',{dir: dir_pids}) do
-      Dyndoc::InteractiveServer.new.run
+  Daemons.run_proc('dyn-http',{dir: dir_pids}) do
+      Dyndoc::HtmlServers.dyn_http_server
   end
 
 end
