@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.9.6'
+pkg_version='0.9.8'
 
 pkg_files=FileList[
     'bin/*',

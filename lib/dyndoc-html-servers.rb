@@ -1,5 +1,6 @@
 require 'dyndoc/init/home'
 require 'pathname'
+require 'yaml'
 
 module Dyndoc
   module HtmlServers
@@ -10,7 +11,7 @@ module Dyndoc
       unless @@cfg
         dyndoc_home = Dyndoc.home
         cfg_yml = File.join(dyndoc_home,"etc","dyn-html.yml")
-        @@cfg=(File.exist? cfg_yml) ? YAML::load_file(cfg_yml) : {}
+        @@cfg=(File.exist? cfg_yml) ? ::YAML::load_file(cfg_yml) : {}
         @@cfg["dyndoc_home"]=dyndoc_home
       end
       @@cfg
@@ -48,8 +49,8 @@ module Dyndoc
       public_root = cfg["public_root"] || HtmlServers.cfg["public_root"] || File.join(root ,"public")
       pages_root = File.join(public_root ,"pages")
       current_email = cfg["email"] || HtmlServers.cfg["email"] || "rdrouilh@gmail.com" #default email user can be overriden by -u option
-      host=cfg["html-srv-host"] || HtmlServers.cfg["html-srv-host"] || "http://localhost"
-      port=cfg["html-srv-port"] || HtmlServers.cfg["html-srv-port"] || "9292"
+      host=(cfg["html-srv-host"] || HtmlServers.cfg["html-srv-host"] || "http://localhost").to_s
+      port=(cfg["html-srv-port"] || HtmlServers.cfg["html-srv-port"] || "9294").to_s
       base_url= host+":"+port
 
       opts = {
@@ -93,7 +94,7 @@ ENDREFRESH
               end
             end
           else
-            puts dyn_file[1..-1]+" not well-formed!"
+            puts filename+" not well-formed!"
           end
         end
       end

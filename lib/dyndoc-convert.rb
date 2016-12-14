@@ -217,6 +217,7 @@ module Dyndoc
       ## add path for user
       code_path = "[#path]"+File.join(opts[:dyn_root],'users',opts[:user],"dynlib")
       code_path << "\n" << File.join(opts[:dyn_root],'users',opts[:user])
+      code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
       code_path << "\n" << opts[:dyn_root] << "\n"
       code_path << "[#main][#<]\n"
       code = code_path + code
