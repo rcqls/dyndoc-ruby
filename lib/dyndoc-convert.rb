@@ -287,6 +287,8 @@ module Dyndoc
         output_basename: dyn_basename+"."+dyn_extname
       }
 
+      p [:cfg_files,cfg_files]
+
       cfg={}
 
       ## find the previous config.yml in the tree folder
@@ -372,7 +374,7 @@ module Dyndoc
 
 
       ## deal with html_file
-      output_file=File.join(opts[:where] || cfg["dyn_dirname"],cfg["output_basename"])
+      output_file=File.join(opts[:where] || cfg[:dyn_dirname],File.basename(cfg[:output_basename]))
       unless File.exist? output_file
         dirname=File.dirname(output_file)
         require 'fileutils'
@@ -402,7 +404,7 @@ module Dyndoc
       ##
       Dyndoc.warn :cfg,cfg
       ##Dyndoc.warn :page,page
-      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
+      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
 
       ## add path for user
@@ -417,8 +419,9 @@ module Dyndoc
 
       dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
 
+      opts[:addr] ||= "127.0.0.1"
       ##unless cfg[:doc_tags]
-        Dyndoc.auto_dyn_file(code,output_file,dyn_file,dyn_layout,addr,dyndoc_start)
+        Dyndoc.auto_dyn_file(code,output_file,dyn_file,dyn_layout,opts[:addr],dyndoc_start)
       # else
       #   (cfg[:doc_tags]).each do |doc_tag|
       #     output_file = cfg[:outputs][doc_tag] ? (cfg[:outputs][doc_tag][0] == "/" ? cfg[:outputs][doc_tag] :  File.join() ) : File.join(opts[:where] || cfg["dyn_dirname"],cfg["output_basename"])

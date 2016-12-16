@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='0.9.8'
+pkg_version='0.9.9'
 
 pkg_files=FileList[
     'bin/*',
@@ -37,7 +37,7 @@ spec = Gem::Specification.new do |s|
     s.add_runtime_dependency "filewatcher",">=0.5.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli'
+    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.

@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
+require 'dyndoc-convert'
 
 dyn_file=ARGV[0]
 
 full_dyn_file=File.expand_path(File.join(Dir.pwd,dyn_file))
-full_dyn_file + '.dyn' unless full_dyn_file ~= /*\.dyn/
+full_dyn_file + '.dyn' unless full_dyn_file =~ /.*\.dyn$/
 
 
 if File.exists? full_dyn_file
