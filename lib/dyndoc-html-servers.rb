@@ -17,14 +17,14 @@ module Dyndoc
       @@cfg
     end
 
-    def HtmlServers.dyn_http_server(host=nil,port="9294")
+    def HtmlServers.dyn_http_server(host=nil,port=nil)
       require 'thin'
       dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__)
       arg=["-R",dyn_html_srv_ru]
-      if port
-        arg += ["-p",port]
-      elsif HtmlServers.cfg["html-srv-port"]
+      if HtmlServers.cfg["html-srv-port"]
         arg += ["-p",HtmlServers.cfg["html-srv-port"].to_s]
+      else
+        arg += ["-p",port || "9294"]
       end
       if host
         arg += ["-a",host]
@@ -65,7 +65,7 @@ module Dyndoc
         ##p [:filename,filename]
         if [:changed,:new].include? event and File.extname(filename) == ".dyn"
           ##p [:filename_event,event,filename]
-          if Dyndoc::Linter.check_file(filename).empty?
+          if (lint_error=Dyndoc::Linter.check_file(filename)).empty?
             ## find dyn_file (relative path from root)
             dyn_file="/"+Pathname(filename).relative_path_from(Pathname(dyn_root)).to_s
             opts_doc=Dyndoc::FileWatcher.get_dyn_html_info(filename,dyn_file,opts[:user])
@@ -94,7 +94,14 @@ ENDREFRESH
               end
             end
           else
-            puts filename+" not well-formed!"
+            if RUBY_PLATFORM =~ /darwin/
+              ##p lint_error
+              cmd_to_display='display notification "' +lint_error.map{|e| e[0].to_s+") "+e[1].to_s}.join('" & "')+ '" with title "Lint Error:'+filename+'"'
+              p [:cmd_display,cmd_to_display]
+              `osascript -e '#{cmd_to_display}'`
+            else
+              puts "Lint Error: "+filename+" with "+lint_error.inspect
+            end
           end
         end
       end

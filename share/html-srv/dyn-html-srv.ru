@@ -14,7 +14,7 @@ $public_root = cfg["public_root"] || File.join(root ,"public")
 class App < Roda
   use Rack::Session::Cookie, :secret => (secret="Thanks like!")
   ##TODO: use Rack::LiveReload
-  plugin :static, ["/pages","/private","/tools"], :root => $public_root
+  plugin :static, ["/pages","/private","/tools","/users"], :root => $public_root
   #opts[:root]=File.expand_path("..",__FILE__),
   #plugin :static, ["/pages","/private"]
   plugin :multi_route

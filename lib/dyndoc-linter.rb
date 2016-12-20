@@ -28,13 +28,17 @@ module Dyndoc
 
     end
 
+    def Linter.guess_bad_opentags(txt)
+      selected_opentags=txt.scan(/(?:\{[\#\@](?:[\w\:\|-]*[<>]?[=?!><]?(?:\.\w*)?)\})/).each_with_index.map{|e,i| [i+1,e] }
+    end
+
     def Linter.check_content(txt)
       Dyndoc::Linter.simplify_dyndoc_tags(Dyndoc::Linter.selected_tags(txt))
     end
 
     def Linter.check_file(file_to_lint)
       txt=File.read(file_to_lint)
-      Dyndoc::Linter.check_content(txt)
+      Dyndoc::Linter.check_content(txt) + Dyndoc::Linter.guess_bad_opentags(txt)
     end
   end
 end
