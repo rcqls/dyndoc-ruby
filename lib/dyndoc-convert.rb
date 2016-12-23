@@ -152,10 +152,15 @@ module Dyndoc
       cfg["layout"] = cfg["pre"] = cfg["post"] = cfg["model"] if cfg["model"]
 
       if cfg["layout"]
-        if cfg["layout"][0] == "~" #user mode
+        if cfg["layout"][-4,4] != ".dyn" ## added to put outside /edit folder
+          if cfg["layout"][0] == "~"
+            user,*pa=cfg["layout"][1..-1].split("/")
+            cfg_tmp=File.join(sys_root,"public","users",user,"layout",pa)+".dyn"
+          else
+            cfg_tmp=File.join(sys_root,"system","layout",cfg["layout"]+".dyn")
+          end
+        elsif cfg["layout"][0] == "~" #user mode
           cfg_tmp=File.join(opts[:dyn_root],'users',cfg["layout"][1] == "/" ? File.join(opts[:user],cfg["layout"][1..-1]) : cfg["layout"][1..-1])
-        elsif cfg["layout"][0,7] == "/system" ## added to put outside /edit folder
-          cfg_tmp=File.join(sys_root,"system",cfg["layout"][8..-1])
         else
           cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
         end
@@ -165,10 +170,15 @@ module Dyndoc
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
       if cfg["pre"]
-        if cfg["pre"][0] == "~" #user mode
+        if cfg["pre"][-4,4] != ".dyn" ## added to put outside /edit folder
+          if cfg["pre"][0] == "~"
+            user,*pa=cfg["pre"][1..-1].split("/")
+            cfg_tmp=File.join(sys_root,"public","users",user,"preload",pa)+".dyn"
+          else
+            cfg_tmp=File.join(sys_root,"system","preload",cfg["pre"]+".dyn")
+          end
+        elsif cfg["pre"][0] == "~" #user mode
           cfg_tmp=File.join(opts[:dyn_root],'users',cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["pre",cfg["pre"]])
-        elsif cfg["pre"][0,7] == "/system" ## added to put outside /edit folder
-          cfg_tmp=File.join(sys_root,"system",cfg["pre"][8..-1])
         else
           #cfg_tmp=File.join(dyn_root,cfg["pre"])
           cfg_tmp=File.join(dyn_root,cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["preload",cfg["pre"]])
@@ -178,10 +188,15 @@ module Dyndoc
       end
 
       if cfg["post"]
-        if cfg["post"][0] == "~" #user mode
+        if cfg["post"][-4,4] != ".dyn" ## added to put outside /edit folder
+          if cfg["post"][0] == "~"
+            user,*pa=cfg["post"][1..-1].split("/")
+            cfg_tmp=File.join(sys_root,"public","users",user,"postload",pa)+".dyn"
+          else
+            cfg_tmp=File.join(sys_root,"system","postload",cfg["post"]+".dyn")
+          end
+        elsif cfg["post"][0] == "~" #user mode
           cfg_tmp=File.join(opts[:dyn_root],'users',cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["post",cfg["post"]])
-        elsif cfg["post"][0,7] == "/system" ## added to put outside /edit folder
-          cfg_tmp=File.join(sys_root,"system",cfg["post"][8..-1])
         else
           #cfg_tmp=File.join(dyn_root,cfg["post"])
           cfg_tmp=File.join(dyn_root,cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["postload",cfg["post"]])
@@ -227,6 +242,7 @@ module Dyndoc
       ## add path for user
       code_path = "[#path]"+File.join(opts[:dyn_root],'users',opts[:user],"dynlib")
       code_path << "\n" << File.join(opts[:dyn_root],'users',opts[:user])
+      code_path << "\n" << File.join(sys_root,'public','users')
       code_path << "\n" << File.join(sys_root,'system','dynlib')
       code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
       code_path << "\n" << opts[:dyn_root] << "\n"
