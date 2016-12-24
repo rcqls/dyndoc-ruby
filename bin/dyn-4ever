@@ -3,25 +3,77 @@
 require 'forever'
 require 'fileutils'
 
+CMD="dyn-4ever"
 SRVS=["dyn-srv","dyn-html","dyn-http"]
 DYN4EVER_DIR=File.join(ENV["HOME"],"dyndoc","dyn-4ever")
-FileUtils.mkdir_p DYN4EVER_DIR
+FileUtils.mkdir_p File.join(DYN4EVER_DIR,'log')
+DYN4EVER_ERR_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".log"
+DYN4EVER_OUT_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".out"
 
-Forever.run do
-  dir DYN4EVER_DIR
-  every 10.seconds do
-    status=SRVS.map do |srv|
-      `#{srv} status`.empty?
+to_start=true
+
+if RUBY_PLATFORM =~ /darwin/
+
+  dyn_plist=File.expand_path("~/Library/LaunchAgents/local.dyn-4ever.plist")
+  unless File.exists? dyn_plist
+    plist= <<-END.sub(/CMD/,CMD).sub(/DYNCMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYN4EVER_ERR_FILE).sub(/OUT_FILE/,DYN4EVER_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"])
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+    <key>EnvironmentVariables</key>
+        <dict>
+                <key>PATH</key>
+                <string>DYN_PATH</string>
+        </dict>
+    <key>Label</key>
+    <string>CMD</string>
+    <key>ProgramArguments</key>
+    <array>
+    <string>DYNCMD</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <dict>
+    <key>Crashed</key>
+    <true/>
+    <key>SuccessfulExit</key>
+    <false/>
+    </dict>
+    <key>StandardErrorPath</key>
+    <string>ERR_FILE</string>
+    <key>StandardOutPath</key>
+    <string>OUT_FILE</string>
+    </dict>
+    </plist>
+    END
+    File.open(dyn_plist,"w") do |f|
+      f << plist
     end
-    if status.any?
-      message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? SRVS[i] : nil}.compact.join("+") + " stopped and restarted!"
-      if RUBY_PLATFORM =~ /darwin/
-        ##p lint_error
-        cmd_to_display="display notification \"#{message}\" with title \"dyn status\""
-        `osascript -e '#{cmd_to_display}'`
+    `launchctl load #{dyn_plist}`
+    to_start=false
+  end
+
+end
+
+if to_start
+  Forever.run do
+    dir DYN4EVER_DIR
+    every 10.seconds do
+      status=SRVS.map do |srv|
+        `#{srv} status`.empty?
       end
-      puts message
-      status.each_with_index { |e,i|  `#{SRVS[i]} start` if e }
+      if status.any?
+        message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? SRVS[i] : nil}.compact.join("+") + " stopped and restarted!"
+        if RUBY_PLATFORM =~ /darwin/
+          ##p lint_error
+          cmd_to_display="display notification \"#{message}\" with title \"dyn status\""
+          `osascript -e '#{cmd_to_display}'`
+        end
+        puts message
+        status.each_with_index { |e,i|  `#{SRVS[i]} start` if e }
+      end
     end
   end
 end
