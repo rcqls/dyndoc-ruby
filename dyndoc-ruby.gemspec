@@ -35,9 +35,10 @@ spec = Gem::Specification.new do |s|
     s.add_runtime_dependency "asciidoctor",">=1.5.3"
     s.add_runtime_dependency "redcarpet",">=3.3.4"
     s.add_runtime_dependency "filewatcher",">=0.5.3"
+    s.add_runtime_dependency "foreverb",">=0.3.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto'
+    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto' << 'dyn-4ever'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.

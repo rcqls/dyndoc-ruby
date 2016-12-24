@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'forever'
+require 'fileutils'
+
+SRVS=["dyn-srv","dyn-html","dyn-http"]
+DYN4EVER_DIR=File.join(ENV["HOME"],"dyndoc","dyn-4ever")
+FileUtils.mkdir_p DYN4EVER_DIR
+
+Forever.run do
+  dir DYN4EVER_DIR
+  every 10.seconds do
+    status=SRVS.map do |srv|
+      `#{srv} status`.empty?
+    end
+    if status.any?
+      message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? SRVS[i] : nil}.compact.join("+") + " stopped and restarted!"
+      if RUBY_PLATFORM =~ /darwin/
+        ##p lint_error
+        cmd_to_display="display notification \"#{message}\" with title \"dyn status\""
+        `osascript -e '#{cmd_to_display}'`
+      end
+      puts message
+      status.each_with_index { |e,i|  `#{SRVS[i]} start` if e }
+    end
+  end
+end
