@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+SRVS=["dyn-srv","dyn-html","dyn-http"]
+CMD="dyn-ctl"
+DYNCTL_PLIST=File.expand_path("~/Library/LaunchAgents/local.dyn-ctl.plist")
+
+
+
+case (ARGV[0] || "start").downcase
+when "start"
+  status=SRVS.map do |srv|
+    `#{srv} status`.empty?
+  end
+  if status.any?
+    message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? SRVS[i] : nil}.compact.join("+") + " stopped and restarted!"
+    if RUBY_PLATFORM =~ /darwin/
+      ##p lint_error
+      cmd_to_display="display notification \"#{message}\" with title \"dyn status\""
+      `osascript -e '#{cmd_to_display}'`
+    end
+    puts message
+    status.each_with_index { |e,i|  `#{SRVS[i]} start` if e }
+  end
+
+when "stop"
+    SRVS.each {|srv| `#{srv} stop`}
+
+when "new"
+
+  if RUBY_PLATFORM =~ /darwin/
+    ## launchctl seems to work but actually: dyn-srv, dyn-html and dyn-http started but noit properly
+
+    DYNCTL_ERR_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".err"
+    DYNCTL_OUT_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".out"
+    FileUtils.mkdir_p File.join(ENV["HOME"],"dyndoc",'log')
+
+    unless File.exists? DYNCTL_PLIST
+      plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"])
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+      <key>EnvironmentVariables</key>
+          <dict>
+                  <key>PATH</key>
+                  <string>DYN_PATH</string>
+                  <key>LANG</key>
+                  <string>DYN_LANG</string>
+          </dict>
+      <key>Label</key>
+      <string>CMD</string>
+      <key>ProgramArguments</key>
+      <array>
+      <string>DYN_CMD</string>
+      </array>
+      <key>RunAtLoad</key>
+      <true/>
+      <key>StartInterval</key>
+      <integer>10</integer>
+      <key>StandardErrorPath</key>
+      <string>ERR_FILE</string>
+      <key>StandardOutPath</key>
+      <string>OUT_FILE</string>
+      </dict>
+      </plist>
+      END
+      File.open(DYNCTL_PLIST,"w") do |f|
+        f << plist
+      end
+    end
+  end
+
+when "load"
+  `launchctl load #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+
+when "unload"
+  `launchctl unload #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+when "delete"
+  if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+    `launchctl unload #{DYNCTL_PLIST}`
+    FileUtils.rm DYNCTL_PLIST
+  end
+
+end

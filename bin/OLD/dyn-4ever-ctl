@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'dyndoc/init/home'
+require 'yaml'
+
+CMD="dyn-4ever"
+DYN4EVER_DIR=File.join(ENV["HOME"],"dyndoc","dyn-4ever")
+FileUtils.mkdir_p DYN4EVER_DIR
+
+DYN4EVER_PLIST=File.expand_path("~/Library/LaunchAgents/local.dyn-4ever.plist")
+
+DYN4EVER_RODA_EDIT=File.join(::YAML::load_file(File.join(Dyndoc.home,"etc","dyn-html.yml"))["root"],"edit")
+
+case ARGV[0].to_s.downcase
+
+when "new"
+
+  if RUBY_PLATFORM =~ /darwin/
+    ## launchctl seems to work but actually: dyn-srv, dyn-html and dyn-http started but noit properly
+
+    DYN4EVER_ERR_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".err"
+    DYN4EVER_OUT_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".out"
+    FileUtils.mkdir_p File.join(DYN4EVER_DIR,'log')
+
+    unless File.exists? DYN4EVER_PLIST
+      plist= <<-END.sub(/CMD/,CMD).sub(/ERR_FILE/,DYN4EVER_ERR_FILE).sub(/OUT_FILE/,DYN4EVER_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/RODA_EDIT/,DYN4EVER_RODA_EDIT)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+      <key>EnvironmentVariables</key>
+          <dict>
+                  <key>PATH</key>
+                  <string>DYN_PATH</string>
+                  <key>LANG</key>
+                  <string>DYN_LANG</string>
+          </dict>
+      <key>Label</key>
+      <string>CMD</string>
+      <key>ProgramArguments</key>
+      <array>
+      <string>DYN_CMD</string>
+      </array>
+      <key>RunAtLoad</key>
+      <true/>
+      <key>StartInterval</key>
+      <integer>10</integer>
+      <key>StandardErrorPath</key>
+      <string>ERR_FILE</string>
+      <key>StandardOutPath</key>
+      <string>OUT_FILE</string>
+      </dict>
+      </plist>
+      END
+      File.open(DYN4EVER_PLIST,"w") do |f|
+        f << plist
+      end
+    end
+  end
+
+when "load"
+  `launchctl load #{DYN4EVER_PLIST}` if File.exists? DYN4EVER_PLIST
+
+when "unload"
+  `launchctl unload #{DYN4EVER_PLIST}` if File.exists? DYN4EVER_PLIST
+
+when "delete"
+  if File.exists? DYN4EVER_PLIST
+    `launchctl unload #{DYN4EVER_PLIST}`
+    FileUtils.rm DYN4EVER_PLIST
+  end
+end

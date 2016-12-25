@@ -41,6 +41,7 @@ module Dyndoc
       require 'dyndoc-edit'
       require 'filewatcher'
       require 'dyndoc-linter'
+
       $VERBOSE = nil
       options={first: true}
       ## To put inside yaml config file!
