@@ -67,7 +67,8 @@ module Dyndoc
 
     return unless opts[:dyn_root]
 
-    dyn_libs,dyn_tags,dyn_layout,dyn_pre_code,dyn_post_code=nil,nil,nil,nil,nil
+    dyn_libs,dyn_tags,dyn_layout=nil,nil,nil
+    dyn_pre_code,dyn_post_code="",""
 
     ## requirement: dyn_file is provided relatively to the opts[:dyn_root] (for security reason too)
 
@@ -112,16 +113,6 @@ module Dyndoc
       ## add info related to dyn file
       cfg.merge!(cfg_files)
 
-      ## Dyn layout
-      dyn_layout=dyn_file[0...i]+"_layout.dyn" if File.exist? dyn_file[0...i]+"_layout.dyn"
-
-      ## Dyn pre
-      dyn_pre_code=File.read(dyn_file[0...i]+"_pre.dyn") if File.exist? dyn_file[0...i]+"_pre.dyn"
-
-      ## Dyn post
-      dyn_post_code=File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
-
-
       if File.exist? dyn_file[0...i]+".dyn_cfg" and (yml=YAML::load_file(dyn_file[0...i]+".dyn_cfg"))
         cfg.merge!(yml)
       else # try do find (in the Zope spirit) a config file in the nearest folder
@@ -146,13 +137,21 @@ module Dyndoc
       dyn_root= cfg["dyn_root"] || opts[:dyn_root] || File.expand_path("..",dyn_file)
       html_root= cfg["html_root"] || opts[:html_root] || File.expand_path("..",dyn_file)
       sys_root = cfg["sys_root"] ||  opts[:sys_root] || File.expand_path('..',dyn_root)
+      ##p [:sys_root,dyn_root,sys_root]
 
-      p [:sys_root,dyn_root,sys_root]
+      ## Dyn Model: generally helps to define a style (layout, preload, postload)
+      if cfg["model"]
+        ## do not aggregate layout
+        cfg["layout"] = cfg["model"]
+        ## aggregate model to pre and load
+        cfg["pre"] = ([cfg["model"]] + ((cfg["pre"] || "").split(","))).join(",")
+        cfg["post"] = ([cfg["model"]] + ((cfg["post"] || "").split(","))).join(",")
+      end
 
-      cfg["layout"] = cfg["pre"] = cfg["post"] = cfg["model"] if cfg["model"]
-
+      ## Dyn layout
+      dyn_layout=dyn_file[0...i]+"_layout.dyn" if File.exist? dyn_file[0...i]+"_layout.dyn"
       if cfg["layout"]
-        if cfg["layout"][-4,4] != ".dyn" ## added to put outside /edit folder
+        if cfg["layout"][-4,4] != ".dyn" ## Main use now! Added to put layout outside  /edit folder
           if cfg["layout"][0] == "~"
             user,*pa=cfg["layout"][1..-1].split("/")
             cfg_tmp=File.join(sys_root,"public","users",user,"layout",pa)+".dyn"
@@ -164,46 +163,55 @@ module Dyndoc
         else
           cfg_tmp=File.join(dyn_root,cfg["layout"][0] == "/" ? cfg["layout"][1..-1] : ["layout",cfg["layout"]])
         end
-        p [:cfg_tmp_layout,cfg_tmp]
+        ##p [:cfg_tmp_layout,cfg_tmp]
         cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
         ##Dyndoc.warn :layout,cfg_tmp
         dyn_layout=cfg_tmp if !dyn_layout and File.exist? cfg_tmp
       end
-      if cfg["pre"]
-        if cfg["pre"][-4,4] != ".dyn" ## added to put outside /edit folder
-          if cfg["pre"][0] == "~"
-            user,*pa=cfg["pre"][1..-1].split("/")
-            cfg_tmp=File.join(sys_root,"public","users",user,"preload",pa)+".dyn"
-          else
-            cfg_tmp=File.join(sys_root,"system","preload",cfg["pre"]+".dyn")
-          end
-        elsif cfg["pre"][0] == "~" #user mode
-          cfg_tmp=File.join(opts[:dyn_root],'users',cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["pre",cfg["pre"]])
-        else
-          #cfg_tmp=File.join(dyn_root,cfg["pre"])
-          cfg_tmp=File.join(dyn_root,cfg["pre"][0] == "/" ? cfg["pre"][1..-1] : ["preload",cfg["pre"]])
-        end
-        cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
-        dyn_pre_code=File.read(cfg_tmp) if !dyn_pre_code and File.exist? cfg_tmp
-      end
 
-      if cfg["post"]
-        if cfg["post"][-4,4] != ".dyn" ## added to put outside /edit folder
-          if cfg["post"][0] == "~"
-            user,*pa=cfg["post"][1..-1].split("/")
-            cfg_tmp=File.join(sys_root,"public","users",user,"postload",pa)+".dyn"
+      ## Dyn pre
+      if cfg["pre"]
+        cfg["pre"].split(",").map{|e| e.strip}.each do |pre|
+          if pre[-4,4] != ".dyn" ## Main use now! Added to put preload outside /edit folder
+            if pre[0] == "~"
+              user,*pa=pre[1..-1].split("/")
+              cfg_tmp=File.join(sys_root,"public","users",user,"preload",pa)+".dyn"
+            else
+              cfg_tmp=File.join(sys_root,"system","preload",pre+".dyn")
+            end
+          elsif pre[0] == "~" #user mode
+            cfg_tmp=File.join(opts[:dyn_root],'users',pre[0] == "/" ? pre[1..-1] : ["pre",pre])
           else
-            cfg_tmp=File.join(sys_root,"system","postload",cfg["post"]+".dyn")
+            #cfg_tmp=File.join(dyn_root,pre)
+            cfg_tmp=File.join(dyn_root,pre[0] == "/" ? pre[1..-1] : ["preload",pre])
           end
-        elsif cfg["post"][0] == "~" #user mode
-          cfg_tmp=File.join(opts[:dyn_root],'users',cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["post",cfg["post"]])
-        else
-          #cfg_tmp=File.join(dyn_root,cfg["post"])
-          cfg_tmp=File.join(dyn_root,cfg["post"][0] == "/" ? cfg["post"][1..-1] : ["postload",cfg["post"]])
+          cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
+          dyn_pre_code += File.read(cfg_tmp) if File.exist? cfg_tmp
         end
-        cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
-        dyn_post_code=File.read(cfg_tmp) if !dyn_post_code and File.exist? cfg_tmp
       end
+      dyn_pre_code += File.read(dyn_file[0...i]+"_pre.dyn") if File.exist? dyn_file[0...i]+"_pre.dyn"
+
+      ## Dyn post
+      if cfg["post"]
+        cfg["post"].split(",").map{|e| e.strip}.each do |post|
+          if post[-4,4] != ".dyn" ## Main use now! Added to put postload outside /edit folder
+            if post[0] == "~"
+              user,*pa=post[1..-1].split("/")
+              cfg_tmp=File.join(sys_root,"public","users",user,"postload",pa)+".dyn"
+            else
+              cfg_tmp=File.join(sys_root,"system","postload",post+".dyn")
+            end
+          elsif post[0] == "~" #user mode
+            cfg_tmp=File.join(opts[:dyn_root],'users',post[0] == "/" ? post[1..-1] : ["post",post])
+          else
+            #cfg_tmp=File.join(dyn_root,post)
+            cfg_tmp=File.join(dyn_root,post[0] == "/" ? post[1..-1] : ["postload",post])
+          end
+          cfg_tmp+= ".dyn" if File.extname(cfg_tmp).empty?
+          dyn_post_code += File.read(cfg_tmp) if File.exist? cfg_tmp
+        end
+      end
+      dyn_post_code += File.read(dyn_file[0...i]+"_post.dyn") if File.exist? dyn_file[0...i]+"_post.dyn"
 
       ## deal with html_file
       html_file=File.join(html_root,cfg["html_file"] || html_file)
@@ -258,7 +266,7 @@ module Dyndoc
       else
         (opts[:current_tags] || html_files.keys[1..-1]).each do |doc_tag|
           html_file=File.join(html_root,["users",opts[:user]] || [],cfg_files[:urls][doc_tag])
-          p [:html_multi,doc_tag,html_file] #,code.gsub(/__ALL_DOC_TAG__/,doc_tag)]
+          ##p [:html_multi,doc_tag,html_file] #,code.gsub(/__ALL_DOC_TAG__/,doc_tag)]
           Dyndoc.process_html_file_from_dyn_file(code.gsub(/__ALL_DOC_TAG__/,doc_tag),html_file,dyn_file,dyn_layout,addr,dyndoc_start)
         end
       end
@@ -290,6 +298,7 @@ module Dyndoc
   ## This version tries to autoconvert a dyn_file of the form *_<format>.dyn to *.<format>
   ## Multi-documents is not considered here! The goal is to provide autoconversion for simple file (even though we can use template)
   ## :format_output => "html" is not a pb since it is mostly used for verbatim output and it is not the focus here!
+  ## TODO: think about existence or location of root of layout, preload, postload and dynlib
 
   def Dyndoc.auto_convert_from_file(dyn_file,opts={}) #ex: opts={dyn_root: , doc_tag: } #opts=obtained by commandline
     ## opts[:dyn_root] ||= ENV["HOME"]
@@ -314,7 +323,7 @@ module Dyndoc
         output_basename: dyn_basename+"."+dyn_extname
       }
 
-      p [:cfg_files,cfg_files]
+      ## p [:cfg_files,cfg_files]
 
       cfg={}
 
