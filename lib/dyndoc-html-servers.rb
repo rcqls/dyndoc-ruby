@@ -57,7 +57,7 @@ module Dyndoc
       opts = {
         dyn_root: dyn_root,
         html_root: pages_root,
-        user: current_email
+        user: nil #current_email
       }
 
       puts "watching "+ dyn_root

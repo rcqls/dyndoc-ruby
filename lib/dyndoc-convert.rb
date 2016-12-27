@@ -248,8 +248,11 @@ module Dyndoc
       code = dyn_tags + code if dyn_tags
 
       ## add path for user
-      code_path = "[#path]"+File.join(opts[:dyn_root],'users',opts[:user],"dynlib")
-      code_path << "\n" << File.join(opts[:dyn_root],'users',opts[:user])
+      code_path = "[#path]"
+      if opts[:user]
+        code_path << "\n" << File.join(opts[:dyn_root],'users',opts[:user],"dynlib")
+        code_path << "\n" << File.join(opts[:dyn_root],'users',opts[:user])
+      end
       code_path << "\n" << File.join(sys_root,'public','users')
       code_path << "\n" << File.join(sys_root,'system','dynlib')
       code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
@@ -265,7 +268,7 @@ module Dyndoc
         Dyndoc.process_html_file_from_dyn_file(code,html_file,dyn_file,dyn_layout,addr,dyndoc_start)
       else
         (opts[:current_tags] || html_files.keys[1..-1]).each do |doc_tag|
-          html_file=File.join(html_root,["users",opts[:user]] || [],cfg_files[:urls][doc_tag])
+          html_file=File.join(html_root,(opts[:user] ? ["users",opts[:user]] : []),cfg_files[:urls][doc_tag])
           ##p [:html_multi,doc_tag,html_file] #,code.gsub(/__ALL_DOC_TAG__/,doc_tag)]
           Dyndoc.process_html_file_from_dyn_file(code.gsub(/__ALL_DOC_TAG__/,doc_tag),html_file,dyn_file,dyn_layout,addr,dyndoc_start)
         end

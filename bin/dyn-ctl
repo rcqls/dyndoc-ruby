@@ -27,6 +27,9 @@ when "start"
 when "stop"
     SRVS.each {|srv| `#{srv} stop`}
 
+when "status"
+    SRVS.each {|srv| puts srv+(`#{srv} status`.empty? ? "stopped" : "running")}
+
 when "new"
 
   if RUBY_PLATFORM =~ /darwin/
