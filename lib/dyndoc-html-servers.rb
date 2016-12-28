@@ -67,24 +67,26 @@ module Dyndoc
         if [:changed,:new].include? event and File.extname(filename) == ".dyn"
           ##p [:filename_event,event,filename]
           if (lint_error=Dyndoc::Linter.check_file(filename)).empty?
-            ## find dyn_file (relative path from root)
-            dyn_file="/"+Pathname(filename).relative_path_from(Pathname(dyn_root)).to_s
-            opts_doc=Dyndoc::FileWatcher.get_dyn_html_info(filename,dyn_file,opts[:user])
-            opts.merge! opts_doc
-            ##p [:html_files,html_files]
+            ## do not process preload, postload, lib and layout files
+            unless filename =~ /(?:_pre|_post|_lib|_layout)\.dyn$/
+              ## find dyn_file (relative path from root)
+              dyn_file="/"+Pathname(filename).relative_path_from(Pathname(dyn_root)).to_s
+              opts_doc=Dyndoc::FileWatcher.get_dyn_html_info(filename,dyn_file,opts[:user])
+              opts.merge! opts_doc
+              ##p [:html_files,html_files]
 
-            html_file=opts[:html_files][opts[:current_doc_tag]] # No more default # || html_files[""]
-            ##p [:opts,opts,:current_doc_tag,opts[:current_doc_tag]]
-            Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
-            puts dyn_file[1..-1]+" processed!"
-            if RUBY_PLATFORM =~ /darwin/
-              options[:first] = html_file != old_html_file
-              if html_file != old_html_file
-                old_html_file = html_file
-                url=File.join(base_url,html_file)
-                cmd_to_open='tell application "Safari" to set URL of current tab of front window to "'+url+'"'
-                `osascript -e '#{cmd_to_open}'`
-              else
+              html_file=opts[:html_files][opts[:current_doc_tag]] # No more default # || html_files[""]
+              ##p [:opts,opts,:current_doc_tag,opts[:current_doc_tag]]
+              Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
+              puts dyn_file[1..-1]+" processed!"
+              if RUBY_PLATFORM =~ /darwin/
+                options[:first] = html_file != old_html_file
+                if html_file != old_html_file
+                  old_html_file = html_file
+                  url=File.join(base_url,html_file)
+                  cmd_to_open='tell application "Safari" to set URL of current tab of front window to "'+url+'"'
+                  `osascript -e '#{cmd_to_open}'`
+                else
 %x{osascript<<ENDREFRESH
 tell app "Safari" to activate
 tell application "System Events"
@@ -92,6 +94,7 @@ tell application "System Events"
 end tell
 ENDREFRESH
 }
+                end
               end
             end
           else

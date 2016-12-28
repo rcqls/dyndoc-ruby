@@ -25,69 +25,6 @@ class App < Roda
     :escape=>true,
     :check_paths=>true,
     :allowed_paths=>[File.expand_path("../views",__FILE__),$public_root]
-  # plugin :csrf,
-  #   :skip => [
-  #     "POST:/edit/dyn",
-  #     "POST:/edit/save",
-  #     "POST:/edit/change-all-dyn-files",
-  #     "POST:/edit/add_delete_dyn_file",
-  #     "POST:/edit/add_delete_user",
-  #     "POST:/edit/add_user_dyn_file",
-  #     "POST:/edit/delete_user_dyn_file",
-  #     "POST:/edit/update_doc_tags_info"
-  #   ],
-  #   :skip_if => lambda{|req| req.env['CONTENT_TYPE'] =~ /application\/json/}
-
-  # plugin :rodauth, :name=>:editor, :json=>true do
-  #   db DB
-  #   enable :login, :logout
-  #   account_password_hash_column :ph
-  #   session_key :user_id
-  #   login_label 'Email'
-  #   password_label 'Mot de passe'
-  #   login_redirect "/editor"
-  # end
-
-  # plugin :rodauth, :name=>:compte,  :json=>true do
-  #   db DB
-  #   enable :change_login, :change_password, :close_account, :create_account,
-  #          :lockout, :login, :logout #, :remember, :reset_password,
-  #          #:verify_account,
-  #          #:otp, :recovery_codes, :sms_codes,
-  #          :password_complexity #,
-  #          #:disallow_password_reuse, :password_expiration, :password_grace_period,
-  #          #:account_expiration,
-  #          #:single_session,
-  #          #:jwt, :session_expiration,
-  #          #:verify_account_grace_period, :verify_change_login
-  #   create_account_link  do
-  #    "<p><a href=\"/compte/create-account\">Créer un nouveau compte</a></p>"
-  #   end
-  #   login_redirect "/editor"
-  #   after_login do
-  #     puts session[:user_id]
-  #   end
-  #   logout_redirect "/editor"
-  #   create_account_redirect "/compte"
-  #   session_key :user_id
-  #   login_label "Email"
-  #   password_label "Mot de passe"
-  #   login_confirm_label "Confirme Email"
-  #   password_confirm_label "Confirme Mot de passe"
-  #   create_account_button "Création compte"
-  #   max_invalid_logins 2
-  #   #allow_password_change_after 60
-  #   #verify_account_grace_period 300
-  #   account_password_hash_column :ph
-  #   title_instance_variable :@page_title
-  #   delete_account_on_close? true
-  #   #only_json? false
-  #   #jwt_secret secret
-  #   # sms_send do |phone_number, message|
-  #   #   MUTEX.synchronize{SMS[session_value] = "Would have sent the following SMS to #{phone_number}: #{message}"}
-  #   # end
-  # end
-
 
   route do |r|
 
@@ -123,7 +60,8 @@ class App < Roda
       end
     end
 
-    r.on "get" do
+=begin
+    r.on "get" do ## useless because of static above???
       rsrc=r.remaining_path
       #p [:get,rsrc]
       static_root=File.join($public_root,"tools")
@@ -137,13 +75,18 @@ class App < Roda
       end
       "No resource #{rsrc} to serve!"
     end
+=end
 
     r.get do
       page=r.remaining_path
       static_root=File.join($public_root,"pages")
       ##p [:page,File.join(static_root,"**",page+".html")]
-      pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|html|html|rb|red|r|jpeg|jpg|png|gif)/) ? page : page+".html"
+      pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|htm|html|rb|red|r|jpeg|jpg|png|gif|pdf)/) ? page : page+".html"
       html_files=Dir[File.join(static_root,"**",pattern)]
+
+      ## try index.html in directory
+      html_files=Dir[File.join(static_root,"**",page,"index.html")] if html_files.empty?
+
       ##p html_files
       unless html_files.empty?
         html_file="pages/"+Pathname(html_files[0]).relative_path_from(Pathname(static_root)).to_s
