@@ -155,6 +155,8 @@ module Dyndoc
           if cfg["layout"][0] == "~"
             user,*pa=cfg["layout"][1..-1].split("/")
             cfg_tmp=File.join(sys_root,"public","users",user,"layout",pa)+".dyn"
+            cfg_tmp=File.join(sys_root,"public","users",user,pa[0...-1],"layout",pa[-1])+".dyn" unless File.exists? cfg_tmp
+            cfg_tmp=File.join(sys_root,"public","users",user,pa) unless File.exists? cfg_tmp
           else
             cfg_tmp=File.join(sys_root,"system","layout",cfg["layout"]+".dyn")
           end
