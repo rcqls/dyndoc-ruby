@@ -14,7 +14,7 @@ when "start"
     `#{srv} status`.empty?
   end
   if status.any?
-    message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? SRVS[i] : nil}.compact.join("+") + " stopped and restarted!"
+    message="at #{Time.now}: " + status.each_with_index.map { |e,i|  e ? "["+SRVS[i]+"]" : nil}.compact.join("+") + " stopped and restarted!"
     if RUBY_PLATFORM =~ /darwin/
       ##p lint_error
       cmd_to_display="display notification \"#{message}\" with title \"dyn status\""

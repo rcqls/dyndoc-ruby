@@ -14,6 +14,11 @@ module Dyndoc
       cli=Dyndoc::InteractiveClient.new(File.read(dyn_layout),"",addr) #File.expand_path(dyn_layout),addr)
     end
 
+    ## fix html_file for _rmd, _adoc and _ttm
+    if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
+      html_file = $1+".html"
+    end
+
     if html_file and Dir.exist? File.dirname(html_file)
       File.open(html_file,"w") do |f|
         f << cli.content

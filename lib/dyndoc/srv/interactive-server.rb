@@ -1,5 +1,6 @@
 require 'socket'                # Get sockets from stdlib
 require "dyndoc-core"
+require 'dyndoc-converter'
 
 
 module Dyndoc
@@ -31,11 +32,26 @@ module Dyndoc
       end
     end
 
+    def post_process_from_format(content,fmt)
+      case fmt
+      when :rmd
+        ::Dyndoc::Converter.markdown(content)
+      when :adoc
+        ::Dyndoc::Converter.asciidoctor(content)
+      when :ttm
+        ::Dyndoc::Converter.ttm(content,"-e2 -r -y1 -L").gsub(/<mtable[^>]*>/,"<mtable>").gsub("\\ngtr","<mtext>&ngtr;</mtext>").gsub("\\nless","<mtext>&nless;</mtext>").gsub("&#232;","<mtext>&egrave;</mtext>")
+      end
+    end
+
 
     def process_dyndoc(content)
       ##Dyndoc.warn :process_dyndoc_content,content
       @content=@tmpl_mngr.parse(content)
       ##Dyndoc.warn :content, @content
+      ## depending on extension
+      if @tmpl_filename =~ /_(rmd|adoc|ttm)\.dyn$/
+        @content=post_process_from_format(@content,$1.to_sym)
+      end
       @tmpl_mngr.filterGlobal.envir["body.content"]=Dyndoc::Utils.protect_dyn_block_for_atom(@content)
       ##Dyndoc.warn :body_content,@tmpl_mngr.filterGlobal.envir["body.content"]
       if @tmpl_filename
