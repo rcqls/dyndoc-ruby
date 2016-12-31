@@ -78,7 +78,11 @@ module Dyndoc
               html_file=opts[:html_files][opts[:current_doc_tag]] # No more default # || html_files[""]
               ##p [:opts,opts,:current_doc_tag,opts[:current_doc_tag]]
               Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
-              puts dyn_file[1..-1]+" processed!"
+              ## fix html_file for _rmd, _adoc and _ttm
+              if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
+                html_file = $1+".html"
+              end
+              puts dyn_file[1..-1]+" processed => "+html_file+" created!"
               if RUBY_PLATFORM =~ /darwin/
                 options[:first] = html_file != old_html_file
                 if html_file != old_html_file
