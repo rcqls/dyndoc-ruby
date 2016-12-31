@@ -133,7 +133,8 @@ module Dyndoc
         if b[0].empty? and b.length>4
           require 'yaml'
           page=YAML.load(b[2])
-          cfg.merge!(page)
+          ##p [:page,page]
+          cfg.merge!(page) if page
           code=b[4..-1].join("")
         end
       end
@@ -142,6 +143,9 @@ module Dyndoc
       dyn_root= cfg["dyn_root"] || opts[:dyn_root] || File.expand_path("..",dyn_file)
       html_root= cfg["html_root"] || opts[:html_root] || File.expand_path("..",dyn_file)
       sys_root = cfg["sys_root"] ||  opts[:sys_root] || File.expand_path('..',dyn_root)
+      cfg["dyn_root"] = dyn_root
+      cfg["html_root"] = html_root
+      cfg["sys_root"] = sys_root
       ##p [:sys_root,dyn_root,sys_root]
 
       ## Dyn Model: generally helps to define a style (layout, preload, postload)
@@ -248,8 +252,7 @@ module Dyndoc
     	end
     	code += "\n" + dyn_post_code if dyn_post_code
       ## TO TEST!!!
-      ##
-      Dyndoc.warn :cfg,cfg
+      ##Dyndoc.warn :cfg,cfg
       ##Dyndoc.warn :page,page
       code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
@@ -264,6 +267,7 @@ module Dyndoc
       code_path << "\n" << File.join(sys_root,'system','dynlib')
       code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
       code_path << "\n" << opts[:dyn_root] << "\n"
+      code_path << "\n" << "[#require]RodaSrvCore" << "\n"
       code_path << "[#main][#<]\n"
       code = code_path + code
 
@@ -385,6 +389,7 @@ module Dyndoc
       # dyn_root can be overwritten by cfg
       # defines the root of relative predefined dyn (pre, post, ...) files
       dyn_root= cfg["dyn_root"] || opts[:dyn_root] || File.expand_path("..",dyn_file)
+      cfg["dyn_root"] = dyn_root
 
       cfg["layout"] = cfg["pre"] = cfg["post"] = cfg["model"] if cfg["model"]
 
@@ -461,7 +466,8 @@ module Dyndoc
       code_path << "[#main][#<]\n"
       code = code_path + code
 
-      ### Dyndoc.warn :code,code
+      ###
+      Dyndoc.warn :code,code
 
       dyndoc_start=[:dyndoc_libs,:dyndoc_layout]
 
