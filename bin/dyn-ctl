@@ -14,11 +14,24 @@ when "init"
     FileUtils.mkdir_p rodasrv
     FileUtils.mkdir File.join(rodasrv,"edit")
     FileUtils.mkdir File.join(rodasrv,"public")
+    FileUtils.mkdir File.join(rodasrv,"public","pages")
+    FileUtils.mkdir File.join(rodasrv,"public","users")
+
     FileUtils.mkdir_p File.expand_path("~/dyndoc/etc")
     File.open(File.expand_path("~/dyndoc/etc/dyn-html.yml"),"w") do |f|
       f << "---" << "\n"
       f << "root: " << rodasrv << "\n"
       f << "---" << "\n"
+    end
+  end
+
+  user=ARGV[1]
+  
+  if user
+    FileUtils.mkdir_p File.join(rodasrv,"edit",user) unless Dir.exists? File.join(rodasrv,"edit",user)
+    FileUtils.mkdir_p File.join(rodasrv,"public","users",user) unless Dir.exists? File.join(rodasrv,"public","users",user)
+    ["dynlib","preload","tools"].each do |dir|
+      FileUtils.mkdir_p File.join(rodasrv,"public","users",user,dir) unless Dir.exists? File.join(rodasrv,"public","users",user,dir)
     end
   end
 

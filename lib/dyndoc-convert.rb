@@ -254,7 +254,7 @@ module Dyndoc
       ## TO TEST!!!
       ##Dyndoc.warn :cfg,cfg
       ##Dyndoc.warn :page,page
-      code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
+      code = "[#rb<]require 'ostruct'; cfg = OpenStruct.new(" + cfg.inspect + ");page = OpenStruct.new(" + page.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
 
       ## add path for user
@@ -265,9 +265,10 @@ module Dyndoc
       end
       code_path << "\n" << File.join(sys_root,'public','users')
       code_path << "\n" << File.join(sys_root,'system','dynlib')
+      code_path << "\n" << sys_root
       code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
       code_path << "\n" << opts[:dyn_root] << "\n"
-      code_path << "\n" << "[#require]RodaSrvCore" << "\n"
+      code_path << "\n" << "[#require]RodaSrvCore" << "\n" #if File.exists? File.join(sys_root,'system','dynlib',"RodaSrvCore.dyn","index.dyn")
       code_path << "[#main][#<]\n"
       code = code_path + code
 

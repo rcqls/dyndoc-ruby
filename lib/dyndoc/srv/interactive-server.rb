@@ -35,10 +35,13 @@ module Dyndoc
     def post_process_from_format(content,fmt)
       case fmt
       when :rmd
+        ::Dyndoc::Converter.tag!(:md)
         ::Dyndoc::Converter.markdown(content)
       when :adoc
+        ::Dyndoc::Converter.tag!(:adoc)
         ::Dyndoc::Converter.asciidoctor(content)
       when :ttm
+        ::Dyndoc::Converter.tag!(:ttm)
         ::Dyndoc::Converter.ttm(content,"-e2 -r -y1 -L").gsub(/<mtable[^>]*>/,"<mtable>").gsub("\\ngtr","<mtext>&ngtr;</mtext>").gsub("\\nless","<mtext>&nless;</mtext>").gsub("&#232;","<mtext>&egrave;</mtext>")
       end
     end
