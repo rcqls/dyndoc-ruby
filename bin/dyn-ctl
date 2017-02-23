@@ -8,7 +8,6 @@ DYNCTL_PLIST=File.expand_path("~/Library/LaunchAgents/local.dyn-ctl.plist")
 
 case (ARGV[0] || "start").downcase
 when "init"
-  require 'fileutils'
   rodasrv=File.expand_path("~/RodaSrv")
   unless Dir.exists? rodasrv
     FileUtils.mkdir_p rodasrv
@@ -26,7 +25,7 @@ when "init"
   end
 
   user=ARGV[1]
-  
+
   if user
     FileUtils.mkdir_p File.join(rodasrv,"edit",user) unless Dir.exists? File.join(rodasrv,"edit",user)
     FileUtils.mkdir_p File.join(rodasrv,"public","users",user) unless Dir.exists? File.join(rodasrv,"public","users",user)
@@ -34,6 +33,30 @@ when "init"
       FileUtils.mkdir_p File.join(rodasrv,"public","users",user,dir) unless Dir.exists? File.join(rodasrv,"public","users",user,dir)
     end
   end
+
+when "browser"
+  browser=ARGV[1]
+  require 'dyndoc-html-servers'
+  if browser
+    browser=browser.downcase
+    Dyndoc::Browser.set browser if ["firefox","safari","chrome"].include? browser
+  else
+    puts "Current browser is #{Dyndoc::Browser.get}"
+  end
+
+when "unwatch"
+  action=ARGV[1] || "ls"
+  path=ARGV[2]
+  require 'dyndoc-html-servers'
+  case action
+  when "ls"
+    Dyndoc::HtmlServers.unwatch_ls
+  when "add"
+    Dyndoc::HtmlServers.unwatch_add path
+  when "rm"
+    Dyndoc::HtmlServers.unwatch_rm path
+  end
+
 
 when "start"
   status=SRVS.map do |srv|

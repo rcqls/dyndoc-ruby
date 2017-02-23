@@ -459,11 +459,20 @@ module Dyndoc
       code = "[#rb<]require 'ostruct';cfg = OpenStruct.new(" + cfg.inspect + ")[#>]" +code
       code = dyn_tags + code if dyn_tags
 
+      ## if a previous directory get .dyn_root file
+      dyn_paths=nil
+      dyn_paths_cfg=cfg[:dyn_dirname].split("/")[1..-1].inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join("",pa,".dyn_paths")}.reverse[0..-3].select{|f| File.exists? f}[0]
+      if dyn_paths_cfg
+        dyn_paths=File.read(dyn_paths_cfg).strip.gsub(/\.\//,File.dirname(dyn_paths_cfg)+"/")
+        dyn_paths=dyn_paths.split(":").map{|e| File.expand_path(e.strip)}.select{|d| Dir.exists? d}
+        dyn_paths=dyn_paths.empty? ? nil : dyn_paths.join("\n")
+      end
       ## add path for user
       code_path = "[#path]"
       code_path << "\n" << File.join(dyn_root,'dynlib')
+      code_path << "\n" << dyn_paths if dyn_paths
       code_path << "\n" << opts[:dynlib_root] << "\n" if opts[:dynlib_root]
-      code_path << "\n" << cfg[:dynlib_root] << "\n" if cfg[:dynlib_root]
+      code_path << "\n" << cfg["dyn_root"] << "\n" if cfg["dyn_root"]
       code_path << "[#main][#<]\n"
       code = code_path + code
 
