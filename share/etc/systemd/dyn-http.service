@@ -1,0 +1,12 @@
+[Unit]
+Description=Syncthing - Open Source Continuous File Synchronization
+Wants=dyn-html.service
+
+[Service]
+ExecStart=/usr/local/bin/dyn-http run
+Restart=on-failure
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+
+[Install]
+WantedBy=default.target
