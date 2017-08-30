@@ -1,8 +1,9 @@
 [Unit]
-Description=Syncthing - Open Source Continuous File Synchronization
+Description=Dyndoc Html service
 Wants=dyn-srv.service
 
 [Service]
+User=conf
 ExecStart=/usr/local/bin/dyn-html run
 Restart=on-failure
 SuccessExitStatus=3 4

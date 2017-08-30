@@ -9,7 +9,7 @@ module Dyndoc
 
     @@cfg=nil
 
-    @@default_browser=(RUBY_PLATFORM =~ /darwin/ ? "safari" : "firefox")
+    @@default_browser=(RUBY_PLATFORM =~ /darwin/ ? "safari" : (RUBY_PLATFORM =~ /linux/ ? "midori" : "firefox"))
 
     def Browser.set(browser)
       Browser.cfg["browser"]=browser
@@ -38,20 +38,24 @@ module Dyndoc
     end
 
     def Browser.name
-      mode=(Browser.cfg["browser"] || :safari).to_sym
-      case mode
-        when :chrome
-          "Google Chrome"
-        when :canary
-          "Google Chrome Canary"
-        when :firefox
-          "Firefox"
-        when :firefox_nightly
-          "FirefoxNightly"
-        when :firefox_developer
-          "FirefoxDeveloperEdition"
-        when :safari
-          "Safari"
+      mode=Browser.get.to_sym
+      if RUBY_PLATFORM =~ /darwin/
+        case mode
+          when :chrome
+            "Google Chrome"
+          when :canary
+            "Google Chrome Canary"
+          when :firefox
+            "Firefox"
+          when :firefox_nightly
+            "FirefoxNightly"
+          when :firefox_developer
+            "FirefoxDeveloperEdition"
+          when :safari
+            "Safari"
+        end
+      elsif RUBY_PLATFORM =~ /linux/
+        mode.to_s
       end
     end
 
@@ -129,6 +133,8 @@ module Dyndoc
       if RUBY_PLATFORM =~ /darwin/
         Browser.set_browser_reload unless File.exists? @@browser_reload_osa
         `osascript #{@@browser_reload_osa}`
+      elsif RUBY_PLATFORM =~ /linux/ and File.exists? "/usr/bin/xdotool"
+        `export DISPLAY=':0.0';/usr/bin/xdotool search --sync --onlyvisible  #{Browser.name} key F5 windowactivate`
       end
     end
 
@@ -152,68 +158,12 @@ module Dyndoc
           f << code
         end
         `osascript #{@@browser_load_osa}`
+      elsif RUBY_PLATFORM =~ /linux/
+        system("xdg-open #{url} &")
       end
     end
   end
 end
-=begin
-Commands = {
-  darwin: {
-    firefox: MacFirefoxCmd,
-    firefoxNightly: MacFirefoxNightlyCmd,
-    firefoxDeveloperEdition: MacFirefoxDeveloperEditionCmd,
-    chrome: MacChromeCmd,
-    chromeCanary: MacChromeCanaryCmd,
-    safari: MacSafariCmd
-  },
-  linux: {
-    firefox: [
-      'search',
-      '--sync',
-      '--onlyvisible',
-      '--class',
-      'firefox',
-      'key',
-      'F5',
-      'windowactivate'
-    ],
-    chrome: [
-      'search',
-      '--sync',
-      '--onlyvisible',
-      '--class',
-      'chrome',
-      'key',
-      'F5',
-      'windowactivate'
-    ]
-  }
-}
-
-RunMacCmd = (cmd) ->
-  new BufferedProcess({
-    command: 'osascript'
-    args: ['-e', BrowserCmd]
-    stderr: (data) ->
-      OpenPanel(type: 'alert', message: data.toString())
-  })
-
-RunLinuxCmd = (BrowserArgs) ->
-  new BufferedProcess({
-    command: 'xdotool'
-    args: BrowserArgs
-    stderr: (data) ->
-      OpenPanel(type: 'alert', message: data.toString())
-  })
-
-RunCmd = (browser) ->
-  if OS.platform() == 'darwin'
-    RunMacCmd(Commands['darwin'][browser])
-  else if OS.platform() == 'linux' and browser isnt 'safari'
-    RunLinuxCmd(Commands['linux'][browser])
-  else
-    OpenPanel(type: 'alert', message: 'Unsupported platform')
-=end
 
 module Dyndoc
   module HtmlServers
@@ -342,24 +292,13 @@ module Dyndoc
                   html_file = $1+".html"
                 end
                 puts dyn_file[1..-1]+" processed => "+html_file+" created!"
-                if RUBY_PLATFORM =~ /darwin/
-                  options[:first] = html_file != old_html_file
-                  if html_file != old_html_file
-                    old_html_file = html_file
-                    url=File.join(base_url,html_file)
-                    # cmd_to_open='tell application "Safari" to set URL of current tab of front window to "'+url+'"'
-                    # `osascript -e '#{cmd_to_open}'`
-                    Dyndoc::Browser.load(url)
-                  else
-                    Dyndoc::Browser.reload
-  # %x{osascript<<ENDREFRESH
-  # tell app "Safari" to activate
-  # tell application "System Events"
-  #   keystroke "r" using {command down}
-  # end tell
-  # ENDREFRESH
-  # }
-                  end
+                options[:first] = html_file != old_html_file
+                if html_file != old_html_file
+                  old_html_file = html_file
+                  url=File.join(base_url,html_file)
+                  Dyndoc::Browser.load(url)
+                else
+                  Dyndoc::Browser.reload
                 end
               end
             end

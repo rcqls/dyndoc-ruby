@@ -39,7 +39,7 @@ when "browser"
   require 'dyndoc-html-servers'
   if browser
     browser=browser.downcase
-    Dyndoc::Browser.set browser if ["firefox","safari","chrome"].include? browser
+    Dyndoc::Browser.set browser if ["firefox","safari","chrome","midori"].include? browser
   else
     puts "Current browser is #{Dyndoc::Browser.get}"
   end
