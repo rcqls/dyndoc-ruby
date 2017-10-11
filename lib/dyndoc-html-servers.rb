@@ -1,7 +1,12 @@
 require 'dyndoc/init/home'
 require 'pathname'
 require 'yaml'
+require 'filewatcher'
 
+if RUBY_VERSION >= "2.4"
+  class FileWatcher < Filewatcher
+  end
+end
 
 module Dyndoc
   module Browser
@@ -267,8 +272,8 @@ module Dyndoc
       puts "watching "+ dyn_root
       old_html_file=""
       ::FileWatcher.new(dyn_root).watch() do |filename, event|
-        ##p [:filename,filename]
-        if [:changed,:new].include? event and File.extname(filename) == ".dyn"
+        ##p [:filename,filename,event]
+        if [:changed,:updated,:new].include? event and File.extname(filename) == ".dyn"
           ##p [:filename_event,event,filename]
           if (lint_error=Dyndoc::Linter.check_file(filename)).empty?
             ## do not process preload, postload, lib and layout files

@@ -89,7 +89,7 @@ when "new"
     FileUtils.mkdir_p File.join(ENV["HOME"],"dyndoc",'log')
 
     unless File.exists? DYNCTL_PLIST
-      plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/DYN_JULIA_DIR/,ENV["JULIA_DIR"])
+      plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/DYN_JULIA_DIR/,ENV["JULIA_DIR"] || "")
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
