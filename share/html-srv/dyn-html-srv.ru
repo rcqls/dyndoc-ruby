@@ -82,10 +82,13 @@ class App < Roda
       static_root=File.join($public_root,"pages")
       ##p [:page,File.join(static_root,"**",page+".html")]
       pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|htm|html|rb|red|r|jpeg|jpg|png|gif|pdf)/) ? page : page+".html"
+      
       html_files=Dir[File.join(static_root,"**",pattern)]
+      html_files=Dir[File.join(static_root,"*","**",pattern)] if html_files.empty?
 
       ## try index.html in directory
       html_files=Dir[File.join(static_root,"**",page,"index.html")] if html_files.empty?
+      html_files=Dir[File.join(static_root,"*","**",page,"index.html")] if html_files.empty?
 
       ##p html_files
       unless html_files.empty?
