@@ -90,6 +90,14 @@ class App < Roda
       html_files=Dir[File.join(static_root,"**",page,"index.html")] if html_files.empty?
       html_files=Dir[File.join(static_root,"*","**",page,"index.html")] if html_files.empty?
 
+      ##DEBUG:
+      # a=File.join(static_root,"**",page,"index.html")
+      # p [a,Dir[a]]
+      # a=File.join(static_root,"*","**",page,"index.html")
+      # p [a,Dir[a]]
+
+      ##DEBUG: p html_files
+
       ##p html_files
       unless html_files.empty?
         html_file="pages/"+Pathname(html_files[0]).relative_path_from(Pathname(static_root)).to_s
