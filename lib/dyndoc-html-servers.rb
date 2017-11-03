@@ -3,10 +3,10 @@ require 'pathname'
 require 'yaml'
 require 'filewatcher'
 
-if RUBY_VERSION >= "2.4"
+#if RUBY_VERSION >= "2.4"
   class FileWatcher < Filewatcher
   end
-end
+#end
 
 module Dyndoc
   module Browser
