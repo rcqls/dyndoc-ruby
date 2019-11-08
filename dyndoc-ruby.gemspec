@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='1.0.24'
+pkg_version='1.2.1'
 
 pkg_files=FileList[
     'bin/*',
@@ -16,12 +16,12 @@ spec = Gem::Specification.new do |s|
     s.summary = "R and Ruby in text document"
     s.name = pkg_name
     s.version = pkg_version
-    s.licenses = ['MIT', 'GPL-2']
+    s.licenses = ['MIT', 'GPL-2.0']
     s.requirements << 'none'
-    s.add_runtime_dependency 'R4rb','>= 1.0.0'
-    s.add_runtime_dependency "dyndoc-ruby-core",">=1.0.0"
-    s.add_runtime_dependency "dyndoc-ruby-doc",">=1.0.0"
-    s.add_runtime_dependency "dyndoc-ruby-exec",">=0.1.0"
+    s.add_runtime_dependency 'R4rb','~> 1.0', '>= 1.0.0'
+    s.add_runtime_dependency 'dyndoc-ruby-core', '~> 1.0', '>= 1.0.0'
+    s.add_runtime_dependency "dyndoc-ruby-doc",'~> 1.0', ">=1.0.0"
+    s.add_runtime_dependency "dyndoc-ruby-exec",'~> 0.1', ">=0.1.0"
     #s.add_dependency("R4rb","~>1.0",">=1.0.0")
     #s.add_dependency("dyndoc-ruby-core","~>1.0",">=1.0.0")
     #s.add_dependency("dyndoc-ruby-doc","~>1.0",">=1.0.0")
@@ -32,13 +32,13 @@ spec = Gem::Specification.new do |s|
     #elsif RUBY_PLATFORM =~ /mswin|mingw/i
     #  s.add_dependency("dyn-ruby-win32daemon","~>0.1",">=0.1.0")
     #end
-    s.add_runtime_dependency "asciidoctor",">=1.5.3"
-    s.add_runtime_dependency "redcarpet",">=3.3.4"
-    s.add_runtime_dependency "filewatcher",">=0.5.3"
-    s.add_runtime_dependency "foreverb",">=0.3.3"
+    s.add_runtime_dependency "asciidoctor",'~> 1.5', ">=1.5.3"
+    s.add_runtime_dependency "redcarpet",'~> 3.3', ">=3.3.4"
+    s.add_runtime_dependency "filewatcher",'~> 1.0', ">=1.0.1"
+    s.add_runtime_dependency "foreverb",'~> 0.3', ">=0.3.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto' << 'dyn-ctl' << 'dyn-4ever'
+    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto' << 'dyn-ctl' << 'dyn-4ever' << 'dyn-yml'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.

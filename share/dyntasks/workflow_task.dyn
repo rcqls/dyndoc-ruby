@@ -1,0 +1,82 @@
+[#%]Création de tâches à lancer en mode asynchone (mode synchrone comme un cas particulier)
+
+L'idée est :
+* de créer des fichiers _dyn.yml qui seront en charge de définir les tâches à exécuter en asynchrone
+* de créer en même temps le script bash pour effectivement lancer ces tâches
+* puis en fin de lancer le script de tâche qui sera exécuté dans un répertoire de travail associé au projet
+
+[#?]!(wd=$params["workdir"]).empty? [#%]Rien à faire si pas de workdir
+[#=]prj_id[:{$params["id"]}]
+[#<]
+
+{#def]waitfor[#,]task[][#,]cond[] [#,]cpt_max[20] [#,]lag[.5]
+[#rb<]
+prj=$params["id"]
+wait_cond=#{=cond}.split("&").map{|e| " [ ! -e " + prj + "-" + e.strip + ".task ]" }.join(" && ")
+[#>][
+waitfor_:{prj}_#{task}() {
+	local cpt="0"
+	echo "waiting for task #{task} in project :{prj}"
+	while :{wait_cond}  && [ $cpt != "#{cpt_max}" ]
+	do
+		sleep #{lag}
+		# echo -ne "."
+		cpt=$(($cpt+1))
+	done
+	#echo ""
+	if [ $cpt -eq  "#{cpt_max}" ]
+	then 
+		return 1
+	else 
+		return 0
+	fi
+}
+]
+[#def}
+
+[#rb<]
+require 'yaml'
+cfg_yml = File.join(Dyndoc.home,"etc","dyn-html.yml")
+dynworld_root=cfg_yml["dynworld_root"] || File.join(ENV["HOME"],".dyndoc-world")
+wd=File.join(dynworld_root,wd) 
+
+FileUtils.rm_rf wd if Dir.exist? wd
+FileUtils.mkdir_p wd
+shscript=""
+prj_id=#{=prj_id}
+# Creation of dyn tasks (_dyn.yml files)
+tasks=$params["tasks"]
+#p [:tasks,tasks.keys]
+## shell fcts
+tasks.keys.each do |task| #
+	## puts "task: "+task+"\n"
+	task_id = (task[-1,1]==">" ? task[0..-2] : task)
+	task_cond=tasks[task]["wait"]
+	{#<][#rb<]
+	|shscript << %Q(
+	|{#waitfor]:{task_id}[#cond]:{task_cond}[#}
+	|)
+	[#<}
+end
+## shell script
+shscript << "cd " + wd + "\n"
+tasks.keys.each do |task| #
+	## puts "task: "+task+"\n"
+	task_id = (task[-1,1]==">" ? task[0..-2] : task)
+	task_yml = File.join(wd,prj_id+"-"+task_id+"_dyn.yml")
+	puts "Creating "+task_yml+"\n"
+	begin
+		dyntask=(tasks[task].is_a? String) ? tasks[tasks[task]] : tasks[task]
+		dyntask=dyntask.select{|k| ["dyntask","params"].include? k}
+		#p [:dyntask,dyntask,dyntask.empty?]
+		File.open(task_yml,"w") {|f| f << dyntask.to_yaml } unless dyntask.empty?
+	rescue
+		puts "Task not created\n"
+	end
+	shscript << "{ waitfor_" << prj_id << "_" << task_id  << " && dyn-yml " << ( task_id[0,1] == task_id[0,1].upcase ? "-R " : "") << ( task_id == task ? "" : "-w ") <<  prj_id << "-" << task_id << "_dyn.yml " << "&& touch " << prj_id << "-" << task_id <<  ".task; } &\n"
+end
+shscript << "touch "+ prj_id + "-init.task\n"
+#p [:script,shscript]
+File.open(File.join(wd,"task.sh"),"w") {|f| f << shscript}
+Process.spawn(". " +File.join(wd,"task.sh"))
+[#?]end

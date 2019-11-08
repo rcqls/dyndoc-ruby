@@ -1,0 +1,1 @@
+[#rb<]system("pdflatex "+$params['input'])

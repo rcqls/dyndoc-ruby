@@ -10,6 +10,12 @@ cfg.merge! YAML::load_file(cfg_yml) if File.exist? cfg_yml
 root = cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
 $public_root = cfg["public_root"] || File.join(root ,"public")
 ##p [:public_root,$public_root]
+$dynworld_root=cfg["dynworld_root"] || File.join(ENV["HOME"],".dyndoc-world")
+$dynworld_tools=cfg["dynworld_tools"] || File.join(ENV["HOME"],"Gogs","dynworld")
+if Dir.exists? $dynworld_tools
+  require File.join($dynworld_tools,"tools.rb") 
+  puts "Dynworld activated"
+end
 
 class App < Roda
   use Rack::Session::Cookie, :secret => (secret="Thanks like!")
@@ -20,17 +26,69 @@ class App < Roda
   plugin :multi_route
   ###Dir[File.expand_path("../routes/*.rb",__FILE__)].each{|f| require f}
   plugin :header_matchers
+  plugin :json
+  plugin :json_parser
   plugin :render,
-    :views => File.expand_path("../views",__FILE__),
+    :views => File.join($public_root,"views"),
     :escape=>true,
     :check_paths=>true,
-    :allowed_paths=>[File.expand_path("../views",__FILE__),$public_root]
-
+    :allowed_paths=>[File.join($public_root,"views"),$public_root]
+  plugin :route_csrf
   route do |r|
 
     # GET / request
     r.root do
       r.redirect "/hello"
+    end
+
+    r.on "dynworld" do
+
+      r.post "file-save" do
+        puts "file-save"
+        prj,yml,@file,@content=r['prj'].strip,r['yml'].strip,r['file'].strip,r['content']
+        p [prj,yml,@file,@content]
+        success=false
+        unless yml.empty?
+          yml="---\n" + yml unless yml[0,4] == "---\n"
+          yml=YAML::load(yml)
+          p [:yml, yml]
+          require 'fileutils'
+          if @file and !(@file.include? "../") and (DyndocWorld.yml?(prj,yml)) 
+            if Dir.exists? $dynworld_root
+              prj_dir=DyndocWorld.prj_dir(prj,yml)
+              dynworld_file=File.join($dynworld_root,prj_dir,@file)
+              FileUtils.mkdir_p File.dirname dynworld_file
+              File.open(dynworld_file,"w") {|f| f << @content.strip} 
+              success=true
+            end
+          end
+        end
+        "{success: " + success.to_s + "}"
+      end
+
+      r.post "file-upload" do
+        uploaded_io = r[:file]
+        ##
+        p [:uploaded_io, uploaded_io]
+        @upload_dir=r["upload_dir"]
+        p [:file_upload_dir,@upload_dir]
+        # FileUtils.mkdir_p File.join(@upload_dir_root,@upload_dir)
+        # uploaded_io[:filename].gsub("'","_") if uploaded_io[:filename].include? "'"
+        # File.open(File.join(@upload_dir_root,@upload_dir, uploaded_io[:filename]), 'wb') do |file|
+        #   file.write(uploaded_io[:tempfile].read)
+        # end
+        "{success: true}"
+      end
+  
+      r.post "file-delete" do
+        @upload_dir=r["upload_dir"]
+        p @upload_dir
+        # deleted_file=File.join(@upload_dir_root,@upload_dir,r[:file_name])
+        # ##p deleted_file
+        # FileUtils.rm(deleted_file)
+        "{success: true}"
+      end
+
     end
 
     #r.multi_route
@@ -78,10 +136,31 @@ class App < Roda
 =end
 
     r.get do
+      check_csrf!
       page=r.remaining_path
+      p [:captures,r.remaining_path,r.captures,r.scope,r.params]
       static_root=File.join($public_root,"pages")
+  
+      ## Added for erb 
+      is_erb = (page[0...4] == "/erb")
+      if is_erb
+        page=page[4..-1] 
+        @params=r.params
+      end
+
+      ## Added to protect page
+      @protect = "no"
+      if (page[0...8] == "/protect")
+        page=page[8..-1]
+        if page =~ /^\/([^\/]*)\/(.*)$/
+          @protect, page = $1, '/' + $2
+        end
+        p [:protect, @protect, page]
+      end
+      
       ##p [:page,File.join(static_root,"**",page+".html")]
-      pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|htm|html|rb|red|r|jpeg|jpg|png|gif|pdf)/) ? page : page+".html"
+      
+      pattern=(page=~/[^\.]*\.(?:R|Rmd|css|js|htm|html|rb|red|r|jpeg|jpg|png|gif|pdf)/) ? page : page+(is_erb ? ".erb" : ".html")
       
       html_files=Dir[File.join(static_root,"**",pattern)]
       html_files=Dir[File.join(static_root,"*","**",pattern)] if html_files.empty?
@@ -98,13 +177,16 @@ class App < Roda
 
       ##DEBUG: p html_files
 
-      ##p html_files
       unless html_files.empty?
         html_file="pages/"+Pathname(html_files[0]).relative_path_from(Pathname(static_root)).to_s
-        if File.extname(html_file) == ".html"
-          html_file=File.join(File.dirname(html_file),File.basename(html_file,".html"))
+        if [".html",".erb"].include? (html_file_ext=File.extname(html_file))
+          html_file=File.join(File.dirname(html_file),File.basename(html_file,html_file_ext))
           p html_file
-          render html_file, :engine=>'html', :views=>$public_root
+          if is_erb
+            erb_yml=File.join($public_root,html_file+"_erb.yml")
+            @cfg_erb=(File.exists? erb_yml) ? YAML::load_file(erb_yml) : {}
+          end
+          render html_file, :engine=> (is_erb ? "erb" : 'html'), :views=>$public_root
         else
           r.redirect html_file
         end

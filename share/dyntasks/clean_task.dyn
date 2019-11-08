@@ -1,0 +1,1 @@
+[#rb<]$params["files"].each {|f| system("rm "+f)}

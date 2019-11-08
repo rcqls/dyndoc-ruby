@@ -296,11 +296,19 @@ module Dyndoc
                 if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
                   html_file = $1+".html"
                 end
+                if html_file =~ /^(.*)_erb\.html$/
+                  erb_page=File.join(pages_root,$1)
+                  if File.exists? erb_page+"_erb.html"
+                    FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
+                  end
+                  html_file = "erb"+$1
+                end
                 puts dyn_file[1..-1]+" processed => "+html_file+" created!"
                 options[:first] = html_file != old_html_file
                 if html_file != old_html_file
                   old_html_file = html_file
                   url=File.join(base_url,html_file)
+                  ## p [:url,url]
                   Dyndoc::Browser.load(url)
                 else
                   Dyndoc::Browser.reload

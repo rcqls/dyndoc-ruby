@@ -2,12 +2,6 @@
 
 require 'dyndoc/document'
 
-puts "bin" ;p $0
-## p Dyndoc.cfg_dir
-
-## To be used for remote at the end
-args_saved=ARGV.dup
-
 args=ARGV.select{|name|
   if (name[0,2]!="--" and name.include? "=")
     key,*val=name.split("=")
@@ -20,6 +14,13 @@ args=ARGV.select{|name|
 }
 
 args=["-h"] if args.empty?
+
+# Default for dyn-yml is without :R and :jl and :exec_mode activated since it is tailor-made for managing task
+# use option -R to activate :R (and :jl if declared in ~/.dyndoc.yml) 
+Settings['cfg_dyn.ruby_only']=true
+# use option -w (like write) to deactivate exec_mode
+Settings["cfg_dyn.model_doc"] = "Content"
+Settings["cfg_dyn.exec_mode"] = "yes"
 
 require 'optparse'
 
@@ -40,9 +41,9 @@ OptionParser.new do |opts|
     Settings["cfg_dyn.model_doc"] = "Content"
   end
 
-  opts.on('-x',"--exec_only", "exec only mode (no document!)") do
-    Settings["cfg_dyn.model_doc"] = "Content"
-    Settings["cfg_dyn.exec_mode"] = "yes"
+  opts.on('-w',"--no_exec_only", "exec only mode (no document!)") do
+    Settings["cfg_dyn.model_doc"] = "default"
+    Settings["cfg_dyn.exec_mode"] = "no"
   end
 
   opts.on('-c', '--cmd COMMAND','[a(rchive old)][r(emove old)][s(ave)][pdf(latex)]') {|c|
@@ -78,8 +79,8 @@ OptionParser.new do |opts|
     Settings['cfg_dyn.debug']=true
   end
 
-  opts.on('-r','--rb_only','ruby only mode') do
-    Settings['cfg_dyn.ruby_only']=true
+  opts.on('-R','--no_rb_only','no ruby only mode') do
+    Settings['cfg_dyn.ruby_only']=false
   end
 
   opts.on("-p", "--pandoc ", "filter for pandoc (tex2docx,...)") do |f|
@@ -96,38 +97,63 @@ end.parse!(args)
 ## ARGV is consumed before except
 doc=args[0]
 
-# Example remote call
-# dyn <options> dyn://<room-id>/<dyndoc-file>[.dyn]
-if doc=~ /^dyn\:\/\/([^\/]*)\/(.*)(?:\.dyn)?$/
-  room_id,dyn_file=$1,$2
+doc += "_dyn.yml" unless doc =~ /_dyn.yml$/
+require 'yaml'
+require 'fileutils'
 
-  room_sync=File.join(ENV["HOME"],"dyndoc","etc",".room_sync")
-	if File.exists? room_sync
-    room_dirs=eval(File.read(room_sync))
-    room_dir=room_dirs[room_id]
-    if room_dir
-      dyn_file=File.expand_path(dyn_file)
-      dyn_dir=File.dirname dyn_file
-      dyn_base=File.basename dyn_file,".dyn"
-      ## Copy files first
-      [".dyn",".dyn_lib"].each do |ext|
-        file=dyn_base+ext
-        if File.exists? (file_to_copy=File.join(dyn_dir,file))
-          require 'fileutils'
-          FileUtils.cp file_to_copy,File.join(room_dir[:local],file)
-        end
-      end
-      ## create task after ##TODO cheksum: to check that required files are present
-      task=[{cmd: "dyn", workdir: File.join("..","rooms",room_dir[:remote]), source: dyn_base+".dyn", options: args[0...-1].join(" ")}]
-      File.open(File.join(room_dir[:local],"..",".run",dyn_base+".task_dyn"),"w") do |f|
-        f << task.inspect
-      end
+cfg_yml=YAML::load_file(doc)
+
+doc =~ /^(.*)_dyn\.yml$/
+docname=$1
+
+unless cfg_yml["dyntask"]
+  #attempt to know if format is the simplified one for workflow
+  ks=cfg_yml.keys
+  cfg2={"dyntask" => "workflow", "params" => {"id" => ks[0], "workdir" => cfg_yml[ks[0]]}}
+  tasks={}
+  ks[1..-1].each do |t|
+    kt,*pt=cfg_yml[t].strip.split("\n")
+    wt,tn=kt.strip.split("->").map{|e| e.strip if e}
+    if tn
+      tasks[t]={"dyntask" => tn}
+      wt="init" if wt.empty?
+      tasks[t]["wait"]=wt
+      pt=YAML::load(pt.join("\n"))  
+      tasks[t]["params"]=pt
+    else
+      puts "Warning: task "+ t + " not considered because malformed"
     end
   end
+  cfg2["params"]["tasks"]=tasks
+  cfg_yml=cfg2
+end
 
-else
+dyntaskname=cfg_yml["dyntask"]
 
-  d=Dyndoc::TemplateDocument.new(doc)
+if dyntaskname
+  puts dyntaskname
+  dyntaskname += "_task.dyn" unless dyntaskname=~/_task.dyn$/
+  dyntaskpath=dyntaskname
+  is_dyntask=File.exists? dyntaskpath
+  unless is_dyntask
+    dyntaskpath=File.join(ENV["HOME"],"dyndoc","tasks",dyntaskname)
+    is_dyntask=File.exists? dyntaskpath
+  end
+  unless is_dyntask
+    share_path=File.expand_path("../../share", __FILE__)
+    dyntaskpath=File.join(share_path,"dyntasks",dyntaskname)
+    is_dyntask=File.exists? dyntaskpath
+  end
+	if is_dyntask
+		dynfile=docname+".dyn"
+    FileUtils.cp dyntaskpath, dynfile
+    $params=cfg_yml["params"]
+    $dyntask=dyntaskname
+		cfg_yml["params"].each do |key,val|
+			Settings["cfg_dyn.user_input"] << [key,val]
+		end
 
-  d.make_all
+		d=Dyndoc::TemplateDocument.new(dynfile)
+		d.make_all
+	end
 end

@@ -3,8 +3,7 @@
 require 'dyndoc/cli/interactive-client.rb'
 
 # USAGE:
-# dyn-cli test.dyn[@127.0.0.1] [output_filename.html]
-# dyn-cli test.dyn,layout.dyn[@127.0.0.1] [output_filename.html]
+# dyn-x test.dyn[@127.0.0.1]
 
 next_i=0
 dyn_tag_tmpl=nil

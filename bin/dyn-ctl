@@ -57,7 +57,6 @@ when "unwatch"
     Dyndoc::HtmlServers.unwatch_rm path
   end
 
-
 when "start"
   status=SRVS.map do |srv|
     `#{srv} status`.empty?
@@ -89,7 +88,7 @@ when "new"
     FileUtils.mkdir_p File.join(ENV["HOME"],"dyndoc",'log')
 
     unless File.exists? DYNCTL_PLIST
-      plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/DYN_JULIA_DIR/,ENV["JULIA_DIR"] || "")
+      plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/DYN_JULIA_DIR/,ENV["JULIA_DIR"] || "").sub(/DYN_JULIA_RUBYLIB_PATH/,ENV["JULIA_RUBYLIB_PATH"])
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
@@ -102,6 +101,10 @@ when "new"
                   <string>DYN_LANG</string>
                   <key>JULIA_DIR</key>
                   <string>DYN_JULIA_DIR</string>
+                  <key>JULIA_RUBYLIB_PATH</key>
+                  <string>DYN_JULIA_RUBYLIB_PATH</string>
+                  <key>OBJC_DISABLE_INITIALIZE_FORK_SAFETY</key>
+                  <string>YES</string>
           </dict>
       <key>Label</key>
       <string>CMD</string>

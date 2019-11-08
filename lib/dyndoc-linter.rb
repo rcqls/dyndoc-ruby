@@ -20,6 +20,11 @@ module Dyndoc
           Dyndoc::Linter.simplify_dyndoc_tags(tags)
           break
         end
+        if (tags[i][1] == "{@"+tags[i+1][1][2..-2]+"]" and tags[i+1][1] == "[@"+tags[i][1][2..-2]+"}") or (tags[i][1][0]=="{" and tags[i+1][1]=="[@}")
+          tags.delete_at i+1;tags.delete_at i
+          Dyndoc::Linter.simplify_dyndoc_tags(tags)
+          break
+        end
       end
       return tags
     end

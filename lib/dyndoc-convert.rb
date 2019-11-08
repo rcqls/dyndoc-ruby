@@ -18,6 +18,9 @@ module Dyndoc
     if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
       html_file = $1+".html"
     end
+    if html_file =~ /^(.*)_erb\.html$/
+      html_file = $1+".erb"
+    end
 
     if html_file and Dir.exist? File.dirname(html_file)
       File.open(html_file,"w") do |f|
