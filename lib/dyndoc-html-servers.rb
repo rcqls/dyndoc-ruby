@@ -255,8 +255,9 @@ module Dyndoc
       options={first: true}
       ## To put inside yaml config file!
       root ||= cfg["root"] || HtmlServers.cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
-      dyn_root = cfg["dyn_root"] || HtmlServers.cfg["dyn_root"] || File.join(root ,"edit")
+      dyn_root = cfg["dyn_root"] || HtmlServers.cfg["dyn_root"] || File.join(root ,"edit") 
       public_root = cfg["public_root"] || HtmlServers.cfg["public_root"] || File.join(root ,"public")
+      dyn_public_edit_root = File.join(public_root,"users","*",".edit","**","*.dyn")
       pages_root = File.join(public_root ,"pages")
       current_email = cfg["email"] || HtmlServers.cfg["email"] || "rdrouilh@gmail.com" #default email user can be overriden by -u option
       host=(cfg["html-srv-host"] || HtmlServers.cfg["html-srv-host"] || "http://localhost").to_s
@@ -269,9 +270,9 @@ module Dyndoc
         user: nil #current_email
       }
 
-      puts "watching "+ dyn_root
+      puts "watching "+ dyn_root+ " and " + dyn_public_edit_root
       old_html_file=""
-      ::FileWatcher.new(dyn_root).watch() do |filename, event|
+      ::FileWatcher.new([dyn_root,dyn_public_edit_root]).watch() do |filename, event|
         ##p [:filename,filename,event]
         if [:changed,:updated,:new].include? event and File.extname(filename) == ".dyn"
           ##p [:filename_event,event,filename]
@@ -279,7 +280,19 @@ module Dyndoc
             ## do not process preload, postload, lib and layout files
             unless filename =~ /(?:_pre|_post|_lib|_layout)\.dyn$/
               ## find dyn_file (relative path from root)
-              dyn_file="/"+Pathname(filename).relative_path_from(Pathname(dyn_root)).to_s
+              dyn_public_edit_file=""
+              dyn_file=Pathname(filename).relative_path_from(Pathname(dyn_root)).to_s
+              if dyn_file[0,2] == '..' # try the public_root
+                dyn_public_edit_file=Pathname(filename).relative_path_from(Pathname(public_root)).to_s
+                dyn_public_edit_file=dyn_public_edit_file.split("/")
+                if dyn_public_edit_file[0]=="users" and dyn_public_edit_file[2]==".edit"
+                  dyn_file="/"+File.join(dyn_public_edit_file[1],dyn_public_edit_file[3..-1])
+                  dyn_public_edit_file=dyn_public_edit_file.join("/")
+                end
+              else
+                dyn_file="/"+dyn_file
+              end
+              
               unless HtmlServers.unwatched?(dyn_file[1..-1]).empty?
                 if RUBY_PLATFORM =~ /darwin/
                   `osascript -e 'display notification "Warning: #{dyn_file} unwatched by #{HtmlServers.unwatched?(dyn_file[1..-1])}!" with title "dyn-ctl unwatch"'`
@@ -303,7 +316,7 @@ module Dyndoc
                   end
                   html_file = "erb"+$1
                 end
-                puts dyn_file[1..-1]+" processed => "+html_file+" created!"
+                puts dyn_file[1..-1]+(dyn_public_edit_file.empty? ? "" : "*")+" processed => "+html_file+" created!"
                 options[:first] = html_file != old_html_file
                 if html_file != old_html_file
                   old_html_file = html_file

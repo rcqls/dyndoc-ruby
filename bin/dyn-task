@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+require 'dyndoc-tasks'
+
+if ["--no-forever","--no-daemon"].include? ARGV[0]
+  cfg={}
+  cfg[:dyntasks_root]=ARGV[1] if ARGV[1]
+  DyndocTasks::filewatcher(cfg)
+else
+  require 'daemons'
+  require 'dyndoc/init/home'
+  require 'fileutils'
+
+  dir_pids=File.join(Dyndoc.home,"pids")
+  FileUtils.mkdir_p dir_pids
+  Daemons.run_proc('dyn-task',{dir: dir_pids}) do
+      DyndocTasks::filewatcher
+  end
+
+end

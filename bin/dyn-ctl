@@ -2,7 +2,7 @@
 
 require 'fileutils'
 
-SRVS=["dyn-srv","dyn-html","dyn-http"]
+SRVS=["dyn-srv","dyn-html","dyn-http","dyn-task"]
 CMD="dyn-ctl"
 DYNCTL_PLIST=File.expand_path("~/Library/LaunchAgents/local.dyn-ctl.plist")
 

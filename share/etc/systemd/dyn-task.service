@@ -1,0 +1,12 @@
+[Unit]
+Description=Dyndoc Task service
+
+[Service]
+User=conf
+ExecStart=/usr/local/bin/dyn-task run
+Restart=on-failure
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+
+[Install]
+WantedBy=default.target

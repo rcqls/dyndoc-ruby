@@ -46,6 +46,7 @@ shscript=""
 prj_id=#{=prj_id}
 # Creation of dyn tasks (_dyn.yml files)
 tasks=$params["tasks"]
+common_params=$params["params"]
 #p [:tasks,tasks.keys]
 ## shell fcts
 tasks.keys.each do |task| #
@@ -69,6 +70,9 @@ tasks.keys.each do |task| #
 		dyntask=(tasks[task].is_a? String) ? tasks[tasks[task]] : tasks[task]
 		dyntask=dyntask.select{|k| ["dyntask","params"].include? k}
 		#p [:dyntask,dyntask,dyntask.empty?]
+		if common_params
+			dyntask["params"] = common_params.dup.merge dyntask["params"]
+		end
 		File.open(task_yml,"w") {|f| f << dyntask.to_yaml } unless dyntask.empty?
 	rescue
 		puts "Task not created\n"

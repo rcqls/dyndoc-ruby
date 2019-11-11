@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+cur=0
+opts={mode: :default, to: ""}
+
+##p ARGV
+
+while ["--dir","--mode","--from","--to","--help","--ext"].include? ARGV[cur]
+  ##p [:cur,ARGV[cur]]
+  case ARGV[cur]
+  when "--dir","--help"
+    opts[ARGV[cur].to_sym]=true
+    cur += 1
+  when "--mode"
+    opts[:mode]==ARGV[cur+1].to_sym if ["default","href"].include? ARGV[cur+1]
+    cur += 2
+  when "--from","--to"
+    opts[ARGV[cur][2..-1].to_sym]=ARGV[cur+1]
+    cur += 2
+  when "--ext"
+    opts[ARGV[cur].to_sym]=ARGV[cur+1]
+    cur += 2
+  end
+end
+
+file=ARGV[cur]
+opts[:help]=true unless file
+if opts[:help]
+  puts "rebase_url [--dir] [--from <from_path>] [--to <to_path>] [--ext <extension>] file"
+else
+  ext=opts[:ext] ? "."+opts[:ext]  : ""
+  files=opts[:dir] ? Dir[File.join(file,"*"+ext)] : [file]
+  ##p files
+  ##p opts
+  files.each do |filename|
+    content=File.read(filename)
+    File.open(filename,"w") do |f|
+      case opts[:mode]
+      when :href
+        f << content.gsub(/\ href="#{opts[:from]}/," href=\""+opts[:to])
+      else
+        f << content.gsub(/#{opts[:from]}/,opts[:to])
+      end
+    end
+  end
+end

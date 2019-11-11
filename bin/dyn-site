@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+cmd=::File.expand_path('../../share/dyn-site/dyn-site.sh',  __FILE__)+" "+ARGV.join(" ")
+
+out=`/bin/bash -c "#{cmd}"`
+
+puts out unless out.empty?
