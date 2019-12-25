@@ -10,12 +10,10 @@ cfg.merge! YAML::load_file(cfg_yml) if File.exist? cfg_yml
 root = cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
 $public_root = cfg["public_root"] || File.join(root ,"public")
 ##p [:public_root,$public_root]
-$dynworld_root=cfg["dynworld_root"] || File.join(ENV["HOME"],".dyndoc-world")
-$dynworld_tools=cfg["dynworld_tools"] || File.join(ENV["HOME"],"Gogs","dynworld")
-if Dir.exists? $dynworld_tools
-  require File.join($dynworld_tools,"tools.rb") 
-  puts "Dynworld activated"
-end
+
+require 'dyndoc-world'
+DyndocWorld.root(cfg["dynworld_root"] || File.join(ENV["HOME"],".dyndoc-world"))
+DyndocWorld.public_root($public_root)
 
 class App < Roda
   use Rack::Session::Cookie, :secret => (secret="Thanks like!")
@@ -45,24 +43,19 @@ class App < Roda
 
       r.post "file-save" do
         puts "file-save"
-        prj,yml,@file,@content=r['prj'].strip,r['yml'].strip,r['file'].strip,r['content']
-        p [prj,yml,@file,@content]
+        prj,yml,@content=r['prj'].strip,r['yml'].strip,r['content']
+        p [prj,yml,@content]
         success=false
         unless yml.empty?
           yml="---\n" + yml unless yml[0,4] == "---\n"
           yml=YAML::load(yml)
           p [:yml, yml]
           require 'fileutils'
-          if @file and !(@file.include? "../") and (DyndocWorld.yml?(prj,yml)) 
-            if Dir.exists? $dynworld_root
-              prj_dir=DyndocWorld.prj_dir(prj,yml)
-              dynworld_file=File.join($dynworld_root,prj_dir,@file)
-              FileUtils.mkdir_p File.dirname dynworld_file
-              File.open(dynworld_file,"w") {|f| f << @content.strip} 
-              success=true
-            end
+          if DyndocWorld.yml?(prj,yml)
+            success=DyndocWorld.prj_file(yml,@content)
           end
         end
+        p [:success, "{success: " + success.to_s + "}"]
         "{success: " + success.to_s + "}"
       end
 

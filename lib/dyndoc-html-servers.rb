@@ -270,10 +270,11 @@ module Dyndoc
         user: nil #current_email
       }
 
-      puts "watching "+ dyn_root+ " and " + dyn_public_edit_root
+      puts "watching "+ dyn_public_edit_root + " and " + dyn_root
       old_html_file=""
-      ::FileWatcher.new([dyn_root,dyn_public_edit_root]).watch() do |filename, event|
-        ##p [:filename,filename,event]
+      ::FileWatcher.new([dyn_public_edit_root,dyn_root]).watch() do |filename, event|
+        ##
+        p [:filename,filename,event]
         if [:changed,:updated,:new].include? event and File.extname(filename) == ".dyn"
           ##p [:filename_event,event,filename]
           if (lint_error=Dyndoc::Linter.check_file(filename)).empty?
@@ -304,27 +305,40 @@ module Dyndoc
 
                 html_file=opts[:html_files][opts[:current_doc_tag]] # No more default # || html_files[""]
                 ##p [:opts,opts,:current_doc_tag,opts[:current_doc_tag]]
-                Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
-                ## fix html_file for _rmd, _adoc and _ttm
-                if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
-                  html_file = $1+".html"
-                end
-                if html_file =~ /^(.*)_erb\.html$/
-                  erb_page=File.join(pages_root,$1)
-                  if File.exists? erb_page+"_erb.html"
-                    FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
+                state=""
+                begin
+                  Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
+                  ## fix html_file for _rmd, _adoc and _ttm
+                  if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
+                    html_file = $1+".html"
                   end
-                  html_file = "erb"+$1
-                end
-                puts dyn_file[1..-1]+(dyn_public_edit_file.empty? ? "" : "*")+" processed => "+html_file+" created!"
-                options[:first] = html_file != old_html_file
-                if html_file != old_html_file
-                  old_html_file = html_file
-                  url=File.join(base_url,html_file)
-                  ## p [:url,url]
-                  Dyndoc::Browser.load(url)
-                else
-                  Dyndoc::Browser.reload
+                  if html_file =~ /^(.*)_erb\.html$/
+                    erb_page=File.join(pages_root,$1)
+                    if File.exists? erb_page+"_erb.html"
+                      FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
+                    end
+                    html_file = "erb"+$1
+                  end
+                  puts dyn_file[1..-1]+(dyn_public_edit_file.empty? ? "" : "*")+" processed => "+html_file+" created!"
+                  options[:first] = html_file != old_html_file
+                  if html_file != old_html_file
+                    old_html_file = html_file
+                    url=File.join(base_url,html_file)
+                    ## p [:url,url]
+                    Dyndoc::Browser.load(url)
+                  else
+                    Dyndoc::Browser.reload
+                  end
+                rescue
+                  state="error: "
+                ensure
+                  notify_file=filename.split("/")
+                  if (ind=notify_file.index ".edit")
+                    notify_file=notify_file[0..ind].join("/")
+                    File.open(notify_file+"/notify.out","w") do |f|
+                      f << state + filename
+                    end
+                  end
                 end
               end
             end

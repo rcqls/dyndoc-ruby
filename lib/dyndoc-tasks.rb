@@ -84,6 +84,10 @@ def DyndocTasks.dyn_yml(doc)
 		dyntaskpath=dyntaskname
 		is_dyntask=File.exists? dyntaskpath
 		unless is_dyntask
+			dyntaskpath=File.join(ENV["HOME"],".dyndoc-world","tasks",dyntaskname)
+			is_dyntask=File.exists? dyntaskpath
+		end
+		unless is_dyntask
 			dyntaskpath=File.join(ENV["HOME"],"dyndoc","tasks",dyntaskname)
 			is_dyntask=File.exists? dyntaskpath
 		end
