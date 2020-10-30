@@ -25,13 +25,37 @@ module DyndocWorld
 	## access ##
 	## prj is to give access for a user or a group of users
 	## if prj or prj/secret is undefined it is accessible
-	def DyndocWorld.yml?(prj,yml)
+	def DyndocWorld.prj_file?(yml)
+		prj=yml["prj"] || yml["project"] || "default" 
 		admin=(prj=="admin")
 		cfg=DyndocWorld.cfg(admin)
 		cfg=cfg[prj] unless admin
-		return true unless cfg
+		return nil unless cfg and yml["file"]
+		parts=yml["file"].split("/")
+		p [:parts,parts]
+		root=parts.shift
+		p [:root,root]
+		user=parts.shift
 		##DEBUG: p [:"yml?", cfg, yml, (cfg and yml and ((cfg["secret"] || "none") == (yml["secret"] || "none")) and yml["file"] and !(yml["file"].include? "../"))]
-		return (cfg and yml and ((cfg["secret"] || "none") == (yml["secret"] || "none")) and yml["file"] and !(yml["file"].include? "../"))
+		if (cfg and yml and ((cfg["secret"] || "none") == (yml["secret"] || "none")) and yml["file"] and !(yml["file"].include? "../")) and ((cfg["users"] || []).include? user)
+			prj_file=nil
+			if ["public","edit","dynworld"].include? root
+				prj_subdir=cfg["subdir"] || ""
+				case root
+				when "public"
+					prj_file=File.join(DyndocWorld.public_root,"users",user)
+					prj_file=(Dir.exists? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
+				when "edit"
+					prj_file=File.join(DyndocWorld.public_root,"users",user,".edit")
+					prj_file=(Dir.exists? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
+				when "dynworld"
+					prj_file=File.join(DyndocWorld.root,user,prj_subdir,parts)
+				end
+			end
+		end
+		p [:prj_file,prj_file]
+		return prj_file
+		
 	end
 
 	## file ##
@@ -39,37 +63,19 @@ module DyndocWorld
 	## ex: public/<user>/<pathname>
 	##     edit/<user>/<pathname>
 	##     dynworld/<user>/<pathname>
-	def DyndocWorld.prj_file(yml,content)
-		success,prj_file=false,""
-		parts=yml["file"].split("/")
-		p [:parts,parts]
-		root=parts.shift
-		p [:root,root]
-		if ["public","edit","dynworld"].include? root
-			user=parts.shift
-			case root
-			when "public"
-				prj_file=File.join(DyndocWorld.public_root,"users",user)
-				prj_file=(Dir.exists? prj_file) ? File.join(prj_file,parts) : ""
-			when "edit"
-				prj_file=File.join(DyndocWorld.public_root,"users",user,".edit")
-				prj_file=(Dir.exists? prj_file) ? File.join(prj_file,parts) : ""
-			when "dynworld"
-				prj_file=File.join(DyndocWorld.root,user,parts)
-			end
+	def DyndocWorld.save_prj_file(prj_file,content)
+		FileUtils.mkdir_p File.dirname prj_file
+		File.open(prj_file,"w") {|f|
+			f << content.strip
+		}
+	end
+
+	def DyndocWorld.open_prj_file(prj_file)
+		res={success: false}
+		if File.exists? prj_file
+			res[:content]=File.read(prj_file)
+			res[:success]=true
 		end
-		p [:prj_file,prj_file]
-		unless prj_file.empty? 
-			FileUtils.mkdir_p File.dirname prj_file
-			File.open(prj_file,"w") {|f|
-				if root == "edit"
-					f << yml.to_yaml
-					f << "---\n"
-				end
-				f << content.strip
-			}
-			success=true
-		end
-		return success
+		return res
 	end
 end

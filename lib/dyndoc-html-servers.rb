@@ -2,6 +2,7 @@ require 'dyndoc/init/home'
 require 'pathname'
 require 'yaml'
 require 'filewatcher'
+require 'dyndoc-servers-cfg'
 
 #if RUBY_VERSION >= "2.4"
   class FileWatcher < Filewatcher
@@ -228,12 +229,15 @@ module Dyndoc
 
     def HtmlServers.dyn_http_server(host=nil,port=nil)
       require 'thin'
-      dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__)
+      dyn_html_srv_ru="/home/ubuntu/tools/dyn-html/srv.ru" # DyndocDockerSite guest-tools folder
+      dyn_html_srv_ru=File.join(ENV["HOME"],"dyndoc","html-srv","dyn.ru") unless File.exists? dyn_html_srv_ru
+      dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__) unless File.exists? dyn_html_srv_ru
+      
       arg=["-R",dyn_html_srv_ru]
       if HtmlServers.cfg["html-srv-port"]
         arg += ["-p",HtmlServers.cfg["html-srv-port"].to_s]
       else
-        arg += ["-p",port || "9294"]
+        arg += ["-p",(port || DyndocServers.dyn_http_port?  || 9294).to_s]
       end
       if host
         arg += ["-a",host]
@@ -243,6 +247,23 @@ module Dyndoc
       arg << "start"
       ##p [:arg,arg]
       Thin::Runner.new(arg).run!
+    end
+
+    def HtmlServers.create_html_page(dyn_file,html_file,opts,pages_root)
+
+      Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
+      ## fix html_file for _rmd, _adoc and _ttm
+      if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
+        html_file = $1+".html"
+      end
+      if html_file =~ /^(.*)_erb\.html$/
+        erb_page=File.join(pages_root,$1)
+        if File.exists? erb_page+"_erb.html"
+          FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
+        end
+        html_file = "erb"+$1
+      end
+    
     end
 
     def HtmlServers.dyn_html_filewatcher(cfg={}) #cfg
@@ -307,18 +328,8 @@ module Dyndoc
                 ##p [:opts,opts,:current_doc_tag,opts[:current_doc_tag]]
                 state=""
                 begin
-                  Dyndoc.cli_convert_from_file(dyn_file[1..-1],html_file, opts)
-                  ## fix html_file for _rmd, _adoc and _ttm
-                  if html_file =~ /^(.*)_(rmd|adoc|ttm)\.html$/
-                    html_file = $1+".html"
-                  end
-                  if html_file =~ /^(.*)_erb\.html$/
-                    erb_page=File.join(pages_root,$1)
-                    if File.exists? erb_page+"_erb.html"
-                      FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
-                    end
-                    html_file = "erb"+$1
-                  end
+                  HtmlServers.create_html_page(dyn_file,html_file,opts,pages_root)
+
                   puts dyn_file[1..-1]+(dyn_public_edit_file.empty? ? "" : "*")+" processed => "+html_file+" created!"
                   options[:first] = html_file != old_html_file
                   if html_file != old_html_file
@@ -329,8 +340,8 @@ module Dyndoc
                   else
                     Dyndoc::Browser.reload
                   end
-                rescue
-                  state="error: "
+                rescue => e
+                  state="error: #{e.message} =>"
                 ensure
                   notify_file=filename.split("/")
                   if (ind=notify_file.index ".edit")

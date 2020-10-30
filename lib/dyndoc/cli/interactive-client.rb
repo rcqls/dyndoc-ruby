@@ -1,4 +1,5 @@
 require "socket"
+require 'dyndoc-servers-cfg'
 
 module Dyndoc
 
@@ -11,7 +12,7 @@ module Dyndoc
 		## reinit is an array
 		def initialize(cmd,tmpl_filename,addr="127.0.0.1",reinit=[],port=7777)
 
-			@addr,@port,@cmd,@tmpl_filename=addr,port,cmd,tmpl_filename
+			@addr,@port,@cmd,@tmpl_filename=addr,DyndocServers.dyn_cli_port? || port,cmd,tmpl_filename
 			##p [:tmpl_filename,@tmpl_filename,@cmd]
 			## The layout needs to be reintailized for new dyndoc file but not for the layout (of course)!
 			dyndoc_cmd="dyndoc"

@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='1.3.9'
+pkg_version='1.4.2'
 
 pkg_files=FileList[
     'bin/*',
@@ -38,7 +38,7 @@ spec = Gem::Specification.new do |s|
     s.add_runtime_dependency "foreverb",'~> 0.3', ">=0.3.3"
     s.require_path = 'lib'
     s.bindir = 'bin'
-    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-task' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto' << 'dyn-ctl' << 'dyn-4ever' << 'dyn-yml' << 'dyn-rebase-url' << "dyn-site"
+    s.executables << 'dyn' << 'dyn-srv' << 'dpm' << 'dyn-html' << 'dyn-http' << 'dyn-task' << 'dyn-init' << 'dyn-scan' << 'dyn-lint' << 'dyn-cli' << 'dyn-auto' << 'dyn-ctl' << 'dyn-4ever' << 'dyn-yml' << 'dyn-rebase-url'
     s.files = pkg_files.to_a
     s.description = <<-EOF
   Provide templating in text document.

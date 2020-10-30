@@ -1,6 +1,7 @@
 require 'socket'                # Get sockets from stdlib
 require "dyndoc-core"
 require 'dyndoc-converter'
+require 'dyndoc-servers-cfg'
 
 
 module Dyndoc
@@ -67,7 +68,7 @@ module Dyndoc
     end
 
     def init_server
-      @server = TCPServer.new('0.0.0.0',7777)
+      @server = TCPServer.new('0.0.0.0',DyndocServers.dyn_srv_port? || 7777)
     end
 
     def run
