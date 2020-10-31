@@ -282,7 +282,7 @@ module Dyndoc
       pages_root = File.join(public_root ,"pages")
       current_email = cfg["email"] || HtmlServers.cfg["email"] || "rdrouilh@gmail.com" #default email user can be overriden by -u option
       host=(cfg["html-srv-host"] || HtmlServers.cfg["html-srv-host"] || "http://localhost").to_s
-      port=(cfg["html-srv-port"] || HtmlServers.cfg["html-srv-port"] || "9294").to_s
+      port=(cfg["html-srv-port"] || HtmlServers.cfg["html-srv-port"] || DyndocServers.dyn_http_port? || "9294").to_s
       base_url= host+":"+port
 
       opts = {
