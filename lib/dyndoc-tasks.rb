@@ -98,9 +98,9 @@ def DyndocTasks.dyn_yml(doc)
 		end
 		if is_dyntask
 			dynfile=docname+".dyn"
-		FileUtils.cp dyntaskpath, dynfile
-		$params=cfg_yml["params"]
-		$dyntask=dyntaskname
+			FileUtils.cp dyntaskpath, dynfile
+			$params=cfg_yml["params"]
+			$dyntask=dyntaskname
 			cfg_yml["params"].each do |key,val|
 				Settings["cfg_dyn.user_input"] << [key,val]
 			end
@@ -126,8 +126,16 @@ def DyndocTasks.filewatcher(cfg={}) #cfg
 	::FileWatcher.new(dyntasks_root).watch() do |filename, event|
 	  ##DEBUG: 
 	  puts filename + "->" + event.to_s+"\n"
-	  if [:changed,:updated,:new].include? event and File.extname(filename) == ".yml"
-		DyndocTasks.dyn_yml filename
+	  if [:changed,:updated,:new].include? event 
+		case File.extname(filename)
+		when ".yml"
+			DyndocTasks.dyn_yml filename
+		when ".rb"
+			system("/usr/bin/env ruby "+filename)
+		when ".sh"
+			system("/usr/bin/env bash "+filename)
+		end
+
 	  end
 	end
 end

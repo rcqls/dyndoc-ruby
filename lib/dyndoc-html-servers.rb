@@ -229,7 +229,8 @@ module Dyndoc
 
     def HtmlServers.dyn_http_server(host=nil,port=nil)
       require 'thin'
-      dyn_html_srv_ru="/home/ubuntu/tools/dyn-html/srv.ru" # DyndocDockerSite guest-tools folder
+      dyn_html_srv_ru=File.join(ENV["HOME"],"RodaSrv","public","users",".dyn-html","srv.ru")
+      dyn_html_srv_ru="/home/ubuntu/tools/dyn-html/srv.ru" unless File.exists? dyn_html_srv_ru # DyndocDockerSite guest-tools folder
       dyn_html_srv_ru=File.join(ENV["HOME"],"dyndoc","html-srv","dyn.ru") unless File.exists? dyn_html_srv_ru
       dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__) unless File.exists? dyn_html_srv_ru
       
@@ -275,7 +276,7 @@ module Dyndoc
       $VERBOSE = nil
       options={first: true}
       ## To put inside yaml config file!
-      root ||= cfg["root"] || HtmlServers.cfg["root"] || File.join(ENV["HOME"],"RCqls","RodaServer")
+      root ||= cfg["root"] || HtmlServers.cfg["root"] || File.join(ENV["HOME"],"RodaSrv")
       dyn_root = cfg["dyn_root"] || HtmlServers.cfg["dyn_root"] || File.join(root ,"edit") 
       public_root = cfg["public_root"] || HtmlServers.cfg["public_root"] || File.join(root ,"public")
       dyn_public_edit_root = File.join(public_root,"users","*",".edit","**","*.dyn")

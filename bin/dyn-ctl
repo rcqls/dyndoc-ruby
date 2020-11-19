@@ -6,6 +6,15 @@ SRVS=["dyn-srv","dyn-html","dyn-http","dyn-task"]
 CMD="dyn-ctl"
 DYNCTL_PLIST=File.expand_path("~/Library/LaunchAgents/local.dyn-ctl.plist")
 
+def srvs?(srvs)
+  if srvs
+    srvs=srvs.split(",",-1).map{|e| "dyn-"+e}
+  else 
+    srvs=SRVS.dup
+  end
+  return srvs
+end
+
 case (ARGV[0] || "start").downcase
 when "init"
   rodasrv=File.expand_path("~/RodaSrv")
@@ -58,7 +67,8 @@ when "unwatch"
   end
 
 when "start"
-  status=SRVS.map do |srv|
+  srvs=srvs?(ARGV[1])
+  status=srvs.map do |srv|
     `#{srv} status`.empty?
   end
   if status.any?
@@ -69,16 +79,18 @@ when "start"
       `osascript -e '#{cmd_to_display}'`
     end
     puts message
-    status.each_with_index { |e,i|  `#{SRVS[i]} start` if e }
+    status.each_with_index { |e,i|  `#{srvs[i]} start` if e }
   end
 
 when "stop"
-    SRVS.each {|srv| `#{srv} stop`}
+    srvs=srvs?(ARGV[1])
+    srvs.each {|srv| `#{srv} stop`}
 
 when "status"
-    SRVS.each {|srv| puts srv+(`#{srv} status`.empty? ? "stopped" : "running")}
+    srvs=srvs?(ARGV[1])
+    srvs.each {|srv| puts srv+"->"+(`#{srv} status`.empty? ? "stopped" : "running")}
 
-when "new"
+  when "new"
 
   if RUBY_PLATFORM =~ /darwin/
     ## launchctl seems to work but actually: dyn-srv, dyn-html and dyn-http started but noit properly
