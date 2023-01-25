@@ -2,7 +2,7 @@
 require 'rubygems/package_task'
 
 pkg_name='dyndoc-ruby'
-pkg_version='1.4.6'
+pkg_version='1.5.0'
 
 pkg_files=FileList[
     'bin/*',
@@ -46,5 +46,4 @@ spec = Gem::Specification.new do |s|
     s.author = "RCqls"
     s.email= "rdrouilh@gmail.com"
     s.homepage = "http://cqls.upmf-grenoble.fr"
-    s.rubyforge_project = nil
 end

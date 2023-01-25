@@ -65,7 +65,7 @@ when "sync" ## MAYBE OBSOLETE!
 	require 'fileutils'
 	FileUtils.mkdir_p (etc=File.join(ENV["HOME"],"dyndoc","etc"))
 	room_sync=File.join(etc,".room_sync")
-	room_dirs=(File.exists? room_sync) ? eval(File.read(room_sync)) : {}
+	room_dirs=(File.exist? room_sync) ? eval(File.read(room_sync)) : {}
 	if ARGV[1] =~ /([^\:@]*)\:([^\:@]*)@([^\:@]*)/
 		room_id,room_local,room_remote=$1,$2,$3
 		room_dirs[room_id]={local: room_local, remote: room_remote}

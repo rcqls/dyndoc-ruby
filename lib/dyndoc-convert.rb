@@ -115,7 +115,7 @@ module Dyndoc
       ## NEEDS TO DECLARE the fields that behave like this in some other config file (keys.yml)
 
       cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join(opts[:dyn_root],pa,"config.yml")}.reverse
-      cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
+      cfg_yml_file=cfg_yml_files.select{|c| File.exist? c}[0]
       cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
 
       ## add info related to dyn file
@@ -167,8 +167,8 @@ module Dyndoc
           if cfg["layout"][0] == "~"
             user,*pa=cfg["layout"][1..-1].split("/")
             cfg_tmp=File.join(sys_root,"public","users",user,"layout",pa)+".dyn"
-            cfg_tmp=File.join(sys_root,"public","users",user,pa[0...-1],"layout",pa[-1])+".dyn" unless File.exists? cfg_tmp
-            cfg_tmp=File.join(sys_root,"public","users",user,pa) unless File.exists? cfg_tmp
+            cfg_tmp=File.join(sys_root,"public","users",user,pa[0...-1],"layout",pa[-1])+".dyn" unless File.exist? cfg_tmp
+            cfg_tmp=File.join(sys_root,"public","users",user,pa) unless File.exist? cfg_tmp
           else
             cfg_tmp=File.join(sys_root,"system","layout",cfg["layout"]+".dyn")
           end
@@ -271,7 +271,7 @@ module Dyndoc
       code_path << "\n" << sys_root
       code_path << "\n" << File.join(opts[:dyn_root],'dynlib')
       code_path << "\n" << opts[:dyn_root] << "\n"
-      code_path << "\n" << "[#require]RodaSrvCore" << "\n" #if File.exists? File.join(sys_root,'system','dynlib',"RodaSrvCore.dyn","index.dyn")
+      code_path << "\n" << "[#require]RodaSrvCore" << "\n" #if File.exist? File.join(sys_root,'system','dynlib',"RodaSrvCore.dyn","index.dyn")
       code_path << "[#main][#<]\n"
       code = code_path + code
 
@@ -354,7 +354,7 @@ module Dyndoc
       ## NEEDS TO DECLARE the fields that behave like this in some other config file (keys.yml)
 
       cfg_yml_files=dyn_path.inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join("",pa,"config.yml")}.reverse
-      cfg_yml_file=cfg_yml_files.select{|c| File.exists? c}[0]
+      cfg_yml_file=cfg_yml_files.select{|c| File.exist? c}[0]
       cfg=YAML::load_file(cfg_yml_file) if cfg_yml_file
 
       ## add info related to dyn file
@@ -464,10 +464,10 @@ module Dyndoc
 
       ## if a previous directory get .dyn_root file
       dyn_paths=nil
-      dyn_paths_cfg=cfg[:dyn_dirname].split("/")[1..-1].inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join("",pa,".dyn_paths")}.reverse[0..-3].select{|f| File.exists? f}[0]
+      dyn_paths_cfg=cfg[:dyn_dirname].split("/")[1..-1].inject([""]) {|res,e| res + [(res[-1,1]+[e]).flatten]}.map{|pa| File.join("",pa,".dyn_paths")}.reverse[0..-3].select{|f| File.exist? f}[0]
       if dyn_paths_cfg
         dyn_paths=File.read(dyn_paths_cfg).strip.gsub(/\.\//,File.dirname(dyn_paths_cfg)+"/")
-        dyn_paths=dyn_paths.split(":").map{|e| File.expand_path(e.strip)}.select{|d| Dir.exists? d}
+        dyn_paths=dyn_paths.split(":").map{|e| File.expand_path(e.strip)}.select{|d| Dir.exist? d}
         dyn_paths=dyn_paths.empty? ? nil : dyn_paths.join("\n")
       end
       ## add path for user

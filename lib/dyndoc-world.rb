@@ -18,7 +18,7 @@ module DyndocWorld
 	def DyndocWorld.cfg(admin=nil)
 		cfg={}
 		secret = File.join(DyndocWorld.root,admin ? ".admin.yml" : ".secret.yml")
-		cfg = YAML::load_file(secret) if DyndocWorld.root and File.exists? secret
+		cfg = YAML::load_file(secret) if DyndocWorld.root and File.exist? secret
 		return cfg
 	end
 
@@ -44,10 +44,10 @@ module DyndocWorld
 				case root
 				when "public"
 					prj_file=File.join(DyndocWorld.public_root,"users",user)
-					prj_file=(Dir.exists? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
+					prj_file=(Dir.exist? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
 				when "edit"
 					prj_file=File.join(DyndocWorld.public_root,"users",user,".edit")
-					prj_file=(Dir.exists? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
+					prj_file=(Dir.exist? prj_file) ? File.join(prj_file,prj_subdir,parts) : ""
 				when "dynworld"
 					prj_file=File.join(DyndocWorld.root,user,prj_subdir,parts)
 				end
@@ -72,7 +72,7 @@ module DyndocWorld
 
 	def DyndocWorld.open_prj_file(prj_file)
 		res={success: false}
-		if File.exists? prj_file
+		if File.exist? prj_file
 			res[:content]=File.read(prj_file)
 			res[:success]=true
 		end

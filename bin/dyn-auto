@@ -7,7 +7,7 @@ full_dyn_file=File.expand_path(File.join(Dir.pwd,dyn_file))
 full_dyn_file + '.dyn' unless full_dyn_file =~ /.*\.dyn$/
 
 
-if File.exists? full_dyn_file
+if File.exist? full_dyn_file
   Dyndoc.auto_convert_from_file(full_dyn_file)
 else
   puts "Error: #{full_dyn_file} does not exists"

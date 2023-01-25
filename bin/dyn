@@ -102,7 +102,7 @@ if doc=~ /^dyn\:\/\/([^\/]*)\/(.*)(?:\.dyn)?$/
   room_id,dyn_file=$1,$2
 
   room_sync=File.join(ENV["HOME"],"dyndoc","etc",".room_sync")
-	if File.exists? room_sync
+	if File.exist? room_sync
     room_dirs=eval(File.read(room_sync))
     room_dir=room_dirs[room_id]
     if room_dir
@@ -112,7 +112,7 @@ if doc=~ /^dyn\:\/\/([^\/]*)\/(.*)(?:\.dyn)?$/
       ## Copy files first
       [".dyn",".dyn_lib"].each do |ext|
         file=dyn_base+ext
-        if File.exists? (file_to_copy=File.join(dyn_dir,file))
+        if File.exist? (file_to_copy=File.join(dyn_dir,file))
           require 'fileutils'
           FileUtils.cp file_to_copy,File.join(room_dir[:local],file)
         end

@@ -20,8 +20,8 @@ module Dyndoc
     def Browser.set(browser)
       Browser.cfg["browser"]=browser
       Browser.save_cfg
-      FileUtils.rm(@@browser_load_osa) if File.exists? @@browser_load_osa
-      FileUtils.rm(@@browser_reload_osa) if File.exists? @@browser_reload_osa
+      FileUtils.rm(@@browser_load_osa) if File.exist? @@browser_load_osa
+      FileUtils.rm(@@browser_reload_osa) if File.exist? @@browser_reload_osa
       Browser.set_browser_reload
       puts "Current browser is set to "+Browser.get+"!"
     end
@@ -137,9 +137,9 @@ module Dyndoc
 
     def Browser.reload
       if RUBY_PLATFORM =~ /darwin/
-        Browser.set_browser_reload unless File.exists? @@browser_reload_osa
+        Browser.set_browser_reload unless File.exist? @@browser_reload_osa
         `osascript #{@@browser_reload_osa}`
-      elsif RUBY_PLATFORM =~ /linux/ and File.exists? "/usr/bin/xdotool"
+      elsif RUBY_PLATFORM =~ /linux/ and File.exist? "/usr/bin/xdotool"
         `export DISPLAY=':0.0';/usr/bin/xdotool search --sync --onlyvisible  #{Browser.name} key F5 windowactivate`
       end
     end
@@ -230,9 +230,9 @@ module Dyndoc
     def HtmlServers.dyn_http_server(host=nil,port=nil)
       require 'thin'
       dyn_html_srv_ru=File.join(ENV["HOME"],"RodaSrv","public","users",".dyn-html","srv.ru")
-      dyn_html_srv_ru="/home/ubuntu/tools/dyn-html/srv.ru" unless File.exists? dyn_html_srv_ru # DyndocDockerSite guest-tools folder
-      dyn_html_srv_ru=File.join(ENV["HOME"],"dyndoc","html-srv","dyn.ru") unless File.exists? dyn_html_srv_ru
-      dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__) unless File.exists? dyn_html_srv_ru
+      dyn_html_srv_ru="/home/ubuntu/tools/dyn-html/srv.ru" unless File.exist? dyn_html_srv_ru # DyndocDockerSite guest-tools folder
+      dyn_html_srv_ru=File.join(ENV["HOME"],"dyndoc","html-srv","dyn.ru") unless File.exist? dyn_html_srv_ru
+      dyn_html_srv_ru=File.expand_path("../../share/html-srv/dyn-html-srv.ru",__FILE__) unless File.exist? dyn_html_srv_ru
       
       arg=["-R",dyn_html_srv_ru]
       if HtmlServers.cfg["html-srv-port"]
@@ -259,7 +259,7 @@ module Dyndoc
       end
       if html_file =~ /^(.*)_erb\.html$/
         erb_page=File.join(pages_root,$1)
-        if File.exists? erb_page+"_erb.html"
+        if File.exist? erb_page+"_erb.html"
           FileUtils.mv erb_page+"_erb.html",erb_page+".erb"
         end
         html_file = "erb"+$1

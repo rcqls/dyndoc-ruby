@@ -82,19 +82,19 @@ def DyndocTasks.dyn_yml(doc)
 		##DEBUG: p [:cfg_yml,cfg_yml]
 		dyntaskname += "_task.dyn" unless dyntaskname=~/_task.dyn$/
 		dyntaskpath=dyntaskname
-		is_dyntask=File.exists? dyntaskpath
+		is_dyntask=File.exist? dyntaskpath
 		unless is_dyntask
 			dyntaskpath=File.join(ENV["HOME"],".dyndoc-world","tasks",dyntaskname)
-			is_dyntask=File.exists? dyntaskpath
+			is_dyntask=File.exist? dyntaskpath
 		end
 		unless is_dyntask
 			dyntaskpath=File.join(ENV["HOME"],"dyndoc","tasks",dyntaskname)
-			is_dyntask=File.exists? dyntaskpath
+			is_dyntask=File.exist? dyntaskpath
 		end
 		unless is_dyntask
 			share_path=File.expand_path("../../share", __FILE__)
 			dyntaskpath=File.join(share_path,"dyntasks",dyntaskname)
-			is_dyntask=File.exists? dyntaskpath
+			is_dyntask=File.exist? dyntaskpath
 		end
 		if is_dyntask
 			dynfile=docname+".dyn"

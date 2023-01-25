@@ -177,7 +177,7 @@ class App < Roda
           p html_file
           if is_erb
             erb_yml=File.join($public_root,html_file+"_erb.yml")
-            @cfg_erb=(File.exists? erb_yml) ? YAML::load_file(erb_yml) : {}
+            @cfg_erb=(File.exist? erb_yml) ? YAML::load_file(erb_yml) : {}
           end
           render html_file, :engine=> (is_erb ? "erb" : 'html'), :views=>$public_root
         else

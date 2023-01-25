@@ -18,7 +18,7 @@ end
 case (ARGV[0] || "start").downcase
 when "init"
   rodasrv=File.expand_path("~/RodaSrv")
-  unless Dir.exists? rodasrv
+  unless Dir.exist? rodasrv
     FileUtils.mkdir_p rodasrv
     FileUtils.mkdir File.join(rodasrv,"edit")
     FileUtils.mkdir File.join(rodasrv,"public")
@@ -36,10 +36,10 @@ when "init"
   user=ARGV[1]
 
   if user
-    FileUtils.mkdir_p File.join(rodasrv,"edit",user) unless Dir.exists? File.join(rodasrv,"edit",user)
-    FileUtils.mkdir_p File.join(rodasrv,"public","users",user) unless Dir.exists? File.join(rodasrv,"public","users",user)
+    FileUtils.mkdir_p File.join(rodasrv,"edit",user) unless Dir.exist? File.join(rodasrv,"edit",user)
+    FileUtils.mkdir_p File.join(rodasrv,"public","users",user) unless Dir.exist? File.join(rodasrv,"public","users",user)
     ["dynlib","preload","tools"].each do |dir|
-      FileUtils.mkdir_p File.join(rodasrv,"public","users",user,dir) unless Dir.exists? File.join(rodasrv,"public","users",user,dir)
+      FileUtils.mkdir_p File.join(rodasrv,"public","users",user,dir) unless Dir.exist? File.join(rodasrv,"public","users",user,dir)
     end
   end
 
@@ -99,7 +99,7 @@ when "status"
     DYNCTL_OUT_FILE = File.join(ENV["HOME"],"dyndoc","log","")+CMD+".out"
     FileUtils.mkdir_p File.join(ENV["HOME"],"dyndoc",'log')
 
-    unless File.exists? DYNCTL_PLIST
+    unless File.exist? DYNCTL_PLIST
       plist= <<-END.sub(/CMD/,CMD).sub(/DYN_CMD/,`which #{CMD}`.strip).sub(/ERR_FILE/,DYNCTL_ERR_FILE).sub(/OUT_FILE/,DYNCTL_OUT_FILE).sub(/DYN_PATH/,ENV["PATH"]).sub(/DYN_LANG/,ENV["LANG"]).sub(/DYN_JULIA_DIR/,ENV["JULIA_DIR"] || "").sub(/DYN_JULIA_RUBYLIB_PATH/,ENV["JULIA_RUBYLIB_PATH"])
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -142,12 +142,12 @@ when "status"
   end
 
 when "load"
-  `launchctl load #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+  `launchctl load #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exist? DYNCTL_PLIST
 
 when "unload"
-  `launchctl unload #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+  `launchctl unload #{DYNCTL_PLIST}` if RUBY_PLATFORM =~ /darwin/ and File.exist? DYNCTL_PLIST
 when "delete"
-  if RUBY_PLATFORM =~ /darwin/ and File.exists? DYNCTL_PLIST
+  if RUBY_PLATFORM =~ /darwin/ and File.exist? DYNCTL_PLIST
     `launchctl unload #{DYNCTL_PLIST}`
     FileUtils.rm DYNCTL_PLIST
   end
