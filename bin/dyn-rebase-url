@@ -26,7 +26,7 @@ end
 file=ARGV[cur]
 opts[:help]=true unless file
 if opts[:help]
-  puts "rebase_url [--dir] [--from <from_path>] [--to <to_path>] [--ext <extension>] file"
+  puts "dyn-rebase-url [--dir] [--from <from_path>] [--to <to_path>] [--ext <extension>] file"
 else
   ext=opts[:ext] ? "."+opts[:ext]  : ""
   files=opts[:dir] ? Dir[File.join(file,"*"+ext)] : [file]
