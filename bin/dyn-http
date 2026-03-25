@@ -9,8 +9,10 @@ else
   require 'fileutils'
 
   dir_pids=File.join(Dyndoc.home,"pids")
+  dir_log=File.join(Dyndoc.home,"log")
   FileUtils.mkdir_p dir_pids
-  Daemons.run_proc('dyn-http',{dir: dir_pids}) do
+  FileUtils.mkdir_p dir_log
+  Daemons.run_proc('dyn-http',{dir: dir_pids, backtrace: true, log_dir: dir_log}) do
       Dyndoc::HtmlServers.dyn_http_server
   end
 
